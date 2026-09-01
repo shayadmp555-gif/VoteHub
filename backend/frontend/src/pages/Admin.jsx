@@ -2,22 +2,9 @@ import { useEffect, useMemo, useState } from "react";
 import "../Admin.css";
 import axios from "axios";
 
-// =====================================================
-// API CONFIG
-// =====================================================
-
-const SERVER_URL =
+const API =
   import.meta.env.VITE_API_URL ||
   "https://votehub-8gj9.onrender.com";
-
-// Automatically add /api if it is not already present
-const API = SERVER_URL.replace(/\/$/, "").endsWith("/api")
-  ? SERVER_URL.replace(/\/$/, "")
-  : `${SERVER_URL.replace(/\/$/, "")}/api`;
-
-// =====================================================
-// ADMIN COMPONENT
-// =====================================================
 
 function Admin({ user, logout }) {
   const [candidates, setCandidates] = useState([]);
@@ -31,49 +18,37 @@ function Admin({ user, logout }) {
 
   const [message, setMessage] = useState("");
 
-  // =====================================================
-  // AUTH CONFIG
-  // =====================================================
+  // ================= TOKEN =================
 
-  const getAuthConfig = () => {
-    const token = localStorage.getItem("token") || "";
+  const token = localStorage.getItem("token") || "";
 
-    return {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-    };
+  const authConfig = {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
   };
 
-  // =====================================================
-  // FETCH ALL CANDIDATES
-  // =====================================================
+  // ================= FETCH CANDIDATES =================
 
   const fetchCandidates = async () => {
     try {
       const res = await axios.get(
-        `${API}/candidates/all`,
-        getAuthConfig()
+        `${API}/api/candidates/all`,
+        authConfig
       );
 
-      console.log("CANDIDATES API RESPONSE:", res.data);
+      console.log("CANDIDATES RESPONSE:", res.data);
 
-      let data = [];
+      const data =
+        res.data?.candidates ??
+        res.data;
 
-      if (Array.isArray(res.data)) {
-        data = res.data;
-      } else if (Array.isArray(res.data?.candidates)) {
-        data = res.data.candidates;
-      }
-
-      setCandidates(data);
-
-      console.log("candidates =", data);
-
-      return data;
+      setCandidates(
+        Array.isArray(data) ? data : []
+      );
     } catch (error) {
-      console.error(
+      console.log(
         "Candidates Error:",
         error.response?.status,
         error.response?.data || error.message
@@ -85,41 +60,31 @@ function Admin({ user, logout }) {
         error.response?.data?.message ||
           "Candidates load nahi ho rahe."
       );
-
-      return [];
     }
   };
 
-  // =====================================================
-  // FETCH ALL USERS
-  // =====================================================
+  // ================= FETCH USERS =================
 
   const fetchUsers = async () => {
     try {
       setUsersLoading(true);
 
       const res = await axios.get(
-        `${API}/users`,
-        getAuthConfig()
+        `${API}/api/users`,
+        authConfig
       );
 
-      console.log("USERS API RESPONSE:", res.data);
+      console.log("USERS RESPONSE:", res.data);
 
-      let data = [];
+      const data =
+        res.data?.users ??
+        res.data;
 
-      if (Array.isArray(res.data)) {
-        data = res.data;
-      } else if (Array.isArray(res.data?.users)) {
-        data = res.data.users;
-      }
-
-      setUsers(data);
-
-      console.log("users =", data);
-
-      return data;
+      setUsers(
+        Array.isArray(data) ? data : []
+      );
     } catch (error) {
-      console.error(
+      console.log(
         "USERS API ERROR:",
         error.response?.status,
         error.response?.data || error.message
@@ -131,16 +96,12 @@ function Admin({ user, logout }) {
         error.response?.data?.message ||
           "Users load nahi ho rahe."
       );
-
-      return [];
     } finally {
       setUsersLoading(false);
     }
   };
 
-  // =====================================================
-  // LOAD DATA
-  // =====================================================
+  // ================= LOAD DATA =================
 
   useEffect(() => {
     const loadData = async () => {
@@ -157,84 +118,91 @@ function Admin({ user, logout }) {
     loadData();
   }, []);
 
-  // =====================================================
-  // USER FILTERS
-  // =====================================================
+  // ================= USER FILTERS =================
 
-  const pendingUsers = users.filter(
-    (item) =>
-      item.role === "user" &&
-      item.isApproved !== true &&
-      item.rejected !== true
-  );
+  const pendingUsers = Array.isArray(users)
+    ? users.filter(
+        (item) =>
+          item.role === "user" &&
+          item.isApproved !== true &&
+          item.rejected !== true
+      )
+    : [];
 
-  const pendingCandidateUsers = users.filter(
-    (item) =>
-      item.role === "candidate" &&
-      item.isApproved !== true &&
-      item.rejected !== true
-  );
+  const pendingCandidateUsers = Array.isArray(users)
+    ? users.filter(
+        (item) =>
+          item.role === "candidate" &&
+          item.isApproved !== true &&
+          item.rejected !== true
+      )
+    : [];
 
-  const approvedUsers = users.filter(
-    (item) =>
-      item.role === "user" &&
-      item.isApproved === true
-  );
+  const approvedUsers = Array.isArray(users)
+    ? users.filter(
+        (item) =>
+          item.role === "user" &&
+          item.isApproved === true
+      )
+    : [];
 
-  const approvedCandidateUsers = users.filter(
-    (item) =>
-      item.role === "candidate" &&
-      item.isApproved === true
-  );
+  const approvedCandidateUsers = Array.isArray(users)
+    ? users.filter(
+        (item) =>
+          item.role === "candidate" &&
+          item.isApproved === true
+      )
+    : [];
 
-  // =====================================================
-  // CANDIDATE FILTERS
-  // =====================================================
+  // ================= CANDIDATE FILTERS =================
 
-  const pendingCandidates = candidates.filter(
-    (item) => item.status === "pending"
-  );
+  const pendingCandidates = Array.isArray(candidates)
+    ? candidates.filter(
+        (item) => item.status === "pending"
+      )
+    : [];
 
-  const approvedCandidates = candidates.filter(
-    (item) => item.status === "approved"
-  );
+  const approvedCandidates = Array.isArray(candidates)
+    ? candidates.filter(
+        (item) => item.status === "approved"
+      )
+    : [];
 
-  const rejectedCandidates = candidates.filter(
-    (item) => item.status === "rejected"
-  );
+  const rejectedCandidates = Array.isArray(candidates)
+    ? candidates.filter(
+        (item) => item.status === "rejected"
+      )
+    : [];
 
-  // =====================================================
-  // TOTAL VOTES
-  // =====================================================
+  // ================= TOTAL VOTES =================
 
-  const totalVotes = candidates.reduce(
-    (total, candidate) =>
-      total + Number(candidate.votes || 0),
-    0
-  );
+  const totalVotes = Array.isArray(candidates)
+    ? candidates.reduce(
+        (total, candidate) =>
+          total + Number(candidate.votes || 0),
+        0
+      )
+    : 0;
 
-  // =====================================================
-  // APPROVE USER
-  // =====================================================
+  // ================= APPROVE USER =================
 
   const approveUser = async (id) => {
     try {
-      const res = await axios.patch(
-        `${API}/users/${id}/approve`,
+      await axios.patch(
+        `${API}/api/users/${id}/approve`,
         {},
-        getAuthConfig()
+        authConfig
       );
 
       setMessage(
-        res.data?.message ||
-          "Voter approved successfully ✅"
+        "Voter approved successfully ✅"
       );
 
       await fetchUsers();
     } catch (error) {
-      console.error(
+      console.log(
         "Approve User Error:",
-        error.response?.data || error.message
+        error
       );
 
       setMessage(
@@ -244,29 +212,25 @@ function Admin({ user, logout }) {
     }
   };
 
-  // =====================================================
-  // REJECT USER
-  // =====================================================
+  // ================= REJECT USER =================
 
   const rejectUser = async (id) => {
     try {
-      const res = await axios.patch(
-        `${API}/users/${id}/reject`,
+      await axios.patch(
+        `${API}/api/users/${id}/reject`,
         {},
-        getAuthConfig()
+        authConfig
       );
 
       setMessage(
-        res.data?.message ||
-          "Voter rejected successfully ❌"
+        "Voter rejected successfully ❌"
       );
 
       await fetchUsers();
-      await fetchCandidates();
     } catch (error) {
-      console.error(
+      console.log(
         "Reject User Error:",
-        error.response?.data || error.message
+        error
       );
 
       setMessage(
@@ -276,73 +240,26 @@ function Admin({ user, logout }) {
     }
   };
 
-  // =====================================================
-  // APPROVE CANDIDATE ACCOUNT
-  // =====================================================
+  // ================= APPROVE CANDIDATE ACCOUNT =================
 
   const approveCandidateUser = async (id) => {
     try {
-      // -----------------------------------------------
-      // STEP 1: APPROVE USER ACCOUNT
-      // -----------------------------------------------
-
-      const userResponse = await axios.patch(
-        `${API}/users/${id}/approve`,
+      await axios.patch(
+        `${API}/api/users/${id}/approve`,
         {},
-        getAuthConfig()
+        authConfig
       );
-
-      // -----------------------------------------------
-      // STEP 2: REFRESH CANDIDATES
-      // Candidate profile is created by backend
-      // after user approval.
-      // -----------------------------------------------
-
-      const updatedCandidates =
-        await fetchCandidates();
-
-      // -----------------------------------------------
-      // STEP 3: FIND CREATED CANDIDATE PROFILE
-      // -----------------------------------------------
-
-      const candidateProfile =
-        updatedCandidates.find((candidate) => {
-          const candidateUserId =
-            candidate.userId?._id ||
-            candidate.userId;
-
-          return (
-            String(candidateUserId) ===
-            String(id)
-          );
-        });
-
-      // -----------------------------------------------
-      // STEP 4: APPROVE CANDIDATE PROFILE
-      // -----------------------------------------------
-
-      if (
-        candidateProfile &&
-        candidateProfile.status !== "approved"
-      ) {
-        await axios.patch(
-          `${API}/candidates/${candidateProfile._id}/approve`,
-          {},
-          getAuthConfig()
-        );
-      }
 
       await fetchUsers();
       await fetchCandidates();
 
       setMessage(
-        userResponse.data?.message ||
-          "Candidate approved successfully ✅"
+        "Candidate account approved successfully ✅"
       );
     } catch (error) {
-      console.error(
-        "Approve Candidate Error:",
-        error.response?.data || error.message
+      console.log(
+        "Approve Candidate User Error:",
+        error
       );
 
       setMessage(
@@ -352,29 +269,26 @@ function Admin({ user, logout }) {
     }
   };
 
-  // =====================================================
-  // REJECT CANDIDATE ACCOUNT
-  // =====================================================
+  // ================= REJECT CANDIDATE ACCOUNT =================
 
   const rejectCandidateUser = async (id) => {
     try {
-      const res = await axios.patch(
-        `${API}/users/${id}/reject`,
+      await axios.patch(
+        `${API}/api/users/${id}/reject`,
         {},
-        getAuthConfig()
+        authConfig
+      );
+
+      setMessage(
+        "Candidate account rejected successfully ❌"
       );
 
       await fetchUsers();
       await fetchCandidates();
-
-      setMessage(
-        res.data?.message ||
-          "Candidate account rejected successfully ❌"
-      );
     } catch (error) {
-      console.error(
+      console.log(
         "Reject Candidate Error:",
-        error.response?.data || error.message
+        error
       );
 
       setMessage(
@@ -384,40 +298,39 @@ function Admin({ user, logout }) {
     }
   };
 
-  // =====================================================
-  // APPROVE CANDIDATE
-  // =====================================================
+  // ================= APPROVE CANDIDATE =================
 
   const approveCandidate = async (id) => {
     try {
       const res = await axios.patch(
-        `${API}/candidates/${id}/approve`,
+        `${API}/api/candidates/${id}/approve`,
         {},
-        getAuthConfig()
+        authConfig
       );
 
       setCandidates((old) =>
-        old.map((item) =>
-          item._id === id
-            ? {
-                ...item,
-                ...(res.data?.candidate || {}),
-                status: "approved",
-              }
-            : item
-        )
+        Array.isArray(old)
+          ? old.map((item) =>
+              item._id === id
+                ? {
+                    ...item,
+                    ...(res.data?.candidate || {}),
+                    status: "approved",
+                  }
+                : item
+            )
+          : []
       );
 
       setMessage(
-        res.data?.message ||
-          "Candidate approved successfully ✅"
+        "Candidate approved successfully ✅"
       );
 
       await fetchCandidates();
     } catch (error) {
-      console.error(
+      console.log(
         "Approve Candidate Error:",
-        error.response?.data || error.message
+        error
       );
 
       setMessage(
@@ -427,40 +340,39 @@ function Admin({ user, logout }) {
     }
   };
 
-  // =====================================================
-  // REJECT CANDIDATE
-  // =====================================================
+  // ================= REJECT CANDIDATE =================
 
   const rejectCandidate = async (id) => {
     try {
       const res = await axios.patch(
-        `${API}/candidates/${id}/reject`,
+        `${API}/api/candidates/${id}/reject`,
         {},
-        getAuthConfig()
+        authConfig
       );
 
       setCandidates((old) =>
-        old.map((item) =>
-          item._id === id
-            ? {
-                ...item,
-                ...(res.data?.candidate || {}),
-                status: "rejected",
-              }
-            : item
-        )
+        Array.isArray(old)
+          ? old.map((item) =>
+              item._id === id
+                ? {
+                    ...item,
+                    ...(res.data?.candidate || {}),
+                    status: "rejected",
+                  }
+                : item
+            )
+          : []
       );
 
       setMessage(
-        res.data?.message ||
-          "Candidate rejected successfully ❌"
+        "Candidate rejected successfully ❌"
       );
 
       await fetchCandidates();
     } catch (error) {
-      console.error(
+      console.log(
         "Reject Candidate Error:",
-        error.response?.data || error.message
+        error
       );
 
       setMessage(
@@ -470,9 +382,7 @@ function Admin({ user, logout }) {
     }
   };
 
-  // =====================================================
-  // DELETE USER
-  // =====================================================
+  // ================= DELETE USER =================
 
   const deleteUser = async (item) => {
     const confirmDelete = window.confirm(
@@ -482,27 +392,26 @@ function Admin({ user, logout }) {
     if (!confirmDelete) return;
 
     try {
-      const res = await axios.delete(
-        `${API}/users/${item._id}`,
-        getAuthConfig()
+      await axios.delete(
+        `${API}/api/users/${item._id}`,
+        authConfig
       );
 
       setUsers((old) =>
-        old.filter(
-          (u) => u._id !== item._id
-        )
+        Array.isArray(old)
+          ? old.filter(
+              (u) => u._id !== item._id
+            )
+          : []
       );
-
-      await fetchCandidates();
 
       setMessage(
-        res.data?.message ||
-          "User permanently deleted successfully 🗑️"
+        "User permanently deleted successfully 🗑️"
       );
     } catch (error) {
-      console.error(
+      console.log(
         "Delete User Error:",
-        error.response?.data || error.message
+        error
       );
 
       setMessage(
@@ -512,9 +421,7 @@ function Admin({ user, logout }) {
     }
   };
 
-  // =====================================================
-  // DELETE CANDIDATE
-  // =====================================================
+  // ================= DELETE CANDIDATE =================
 
   const deleteCandidate = async (candidate) => {
     const confirmDelete = window.confirm(
@@ -524,26 +431,27 @@ function Admin({ user, logout }) {
     if (!confirmDelete) return;
 
     try {
-      const res = await axios.delete(
-        `${API}/candidates/${candidate._id}`,
-        getAuthConfig()
+      await axios.delete(
+        `${API}/api/candidates/${candidate._id}`,
+        authConfig
       );
 
       setCandidates((old) =>
-        old.filter(
-          (item) =>
-            item._id !== candidate._id
-        )
+        Array.isArray(old)
+          ? old.filter(
+              (item) =>
+                item._id !== candidate._id
+            )
+          : []
       );
 
       setMessage(
-        res.data?.message ||
-          "Candidate permanently deleted successfully 🗑️"
+        "Candidate permanently deleted successfully 🗑️"
       );
     } catch (error) {
-      console.error(
+      console.log(
         "Delete Candidate Error:",
-        error.response?.data || error.message
+        error
       );
 
       setMessage(
@@ -553,9 +461,7 @@ function Admin({ user, logout }) {
     }
   };
 
-  // =====================================================
-  // END ELECTION
-  // =====================================================
+  // ================= END ELECTION =================
 
   const endElection = async () => {
     const confirmEnd = window.confirm(
@@ -566,9 +472,9 @@ function Admin({ user, logout }) {
 
     try {
       const res = await axios.patch(
-        `${API}/election/end`,
+        `${API}/api/election/end`,
         {},
-        getAuthConfig()
+        authConfig
       );
 
       setMessage(
@@ -576,9 +482,9 @@ function Admin({ user, logout }) {
           "Election ended successfully 🏆"
       );
     } catch (error) {
-      console.error(
+      console.log(
         "End Election Error:",
-        error.response?.data || error.message
+        error
       );
 
       setMessage(
@@ -588,22 +494,21 @@ function Admin({ user, logout }) {
     }
   };
 
-  // =====================================================
-  // RESTART ELECTION
-  // =====================================================
+  // ================= RESTART ELECTION =================
 
   const restartElection = async () => {
-    const confirmRestart = window.confirm(
-      "Are you sure you want to start a new election?\n\nPrevious votes will be reset."
-    );
+    const confirmRestart =
+      window.confirm(
+        "Are you sure you want to start a new election?\n\nPrevious votes will be reset."
+      );
 
     if (!confirmRestart) return;
 
     try {
       const res = await axios.patch(
-        `${API}/election/reset`,
+        `${API}/api/election/reset`,
         {},
-        getAuthConfig()
+        authConfig
       );
 
       setMessage(
@@ -614,9 +519,9 @@ function Admin({ user, logout }) {
       await fetchCandidates();
       await fetchUsers();
     } catch (error) {
-      console.error(
+      console.log(
         "Reset Election Error:",
-        error.response?.data || error.message
+        error
       );
 
       setMessage(
@@ -626,43 +531,38 @@ function Admin({ user, logout }) {
     }
   };
 
-  // =====================================================
-  // SEARCH
-  // =====================================================
+  // ================= SEARCH =================
 
   const filteredCandidates = useMemo(() => {
-    const searchText =
-      search.toLowerCase().trim();
-
-    if (!searchText) {
-      return candidates;
+    if (!Array.isArray(candidates)) {
+      return [];
     }
 
-    return candidates.filter((candidate) => {
-      const text = `
-        ${candidate.name || ""}
-        ${candidate.party || ""}
-        ${candidate.status || ""}
-      `.toLowerCase();
+    return candidates.filter(
+      (candidate) => {
+        const text =
+          `${candidate.name || ""} ${
+            candidate.party || ""
+          }`.toLowerCase();
 
-      return text.includes(searchText);
-    });
+        return text.includes(
+          search.toLowerCase()
+        );
+      }
+    );
   }, [candidates, search]);
 
-  // =====================================================
-  // INITIAL
-  // =====================================================
+  // ================= INITIAL =================
 
   const getInitial = (name) => {
     return (
-      name?.charAt(0)?.toUpperCase() ||
-      "?"
+      name
+        ?.charAt(0)
+        ?.toUpperCase() || "?"
     );
   };
 
-  // =====================================================
-  // LOGOUT
-  // =====================================================
+  // ================= LOGOUT =================
 
   const handleLogout = () => {
     if (logout) {
@@ -676,9 +576,7 @@ function Admin({ user, logout }) {
     window.location.href = "/";
   };
 
-  // =====================================================
-  // USER ROW
-  // =====================================================
+  // ================= USER ROW =================
 
   const renderUserRow = (
     item,
@@ -722,6 +620,7 @@ function Admin({ user, logout }) {
 
         {showActions && (
           <div className="action-buttons">
+
             {item.isApproved !== true &&
               item.rejected !== true &&
               (candidateAccount ? (
@@ -753,7 +652,9 @@ function Admin({ user, logout }) {
                   <button
                     className="approve-btn"
                     onClick={() =>
-                      approveUser(item._id)
+                      approveUser(
+                        item._id
+                      )
                     }
                   >
                     ✓ Approve
@@ -762,7 +663,9 @@ function Admin({ user, logout }) {
                   <button
                     className="reject-btn"
                     onClick={() =>
-                      rejectUser(item._id)
+                      rejectUser(
+                        item._id
+                      )
                     }
                   >
                     ✕ Reject
@@ -784,9 +687,7 @@ function Admin({ user, logout }) {
     );
   };
 
-  // =====================================================
-  // PAGE TITLE
-  // =====================================================
+  // ================= PAGE TITLE =================
 
   const pageTitle =
     activePage === "dashboard"
@@ -803,16 +704,12 @@ function Admin({ user, logout }) {
       ? "Approved Candidates"
       : "Candidate Management";
 
-  // =====================================================
-  // UI
-  // =====================================================
+  // ================= RETURN =================
 
   return (
     <div className="admin-layout">
 
-      {/* =================================================
-          SIDEBAR
-      ================================================= */}
+      {/* ================= SIDEBAR ================= */}
 
       <aside className="admin-sidebar">
 
@@ -836,8 +733,6 @@ function Admin({ user, logout }) {
 
         <div className="sidebar-menu">
 
-          {/* DASHBOARD */}
-
           <button
             className={
               activePage === "dashboard"
@@ -850,8 +745,6 @@ function Admin({ user, logout }) {
           >
             📊 Dashboard
           </button>
-
-          {/* CANDIDATE REQUESTS */}
 
           <button
             className={
@@ -876,8 +769,6 @@ function Admin({ user, logout }) {
             )}
           </button>
 
-          {/* VOTER REQUESTS */}
-
           <button
             className={
               activePage === "pendingUsers"
@@ -900,8 +791,6 @@ function Admin({ user, logout }) {
             )}
           </button>
 
-          {/* VOTERS */}
-
           <button
             className={
               activePage === "users"
@@ -920,8 +809,6 @@ function Admin({ user, logout }) {
             </b>
           </button>
 
-          {/* APPROVED CANDIDATES */}
-
           <button
             className={
               activePage === "approvedCandidates"
@@ -930,6 +817,7 @@ function Admin({ user, logout }) {
             }
             onClick={async () => {
               await fetchUsers();
+
               setActivePage(
                 "approvedCandidates"
               );
@@ -941,8 +829,6 @@ function Admin({ user, logout }) {
               {approvedCandidateUsers.length}
             </b>
           </button>
-
-          {/* ELECTION CANDIDATES */}
 
           <button
             className={
@@ -962,16 +848,12 @@ function Admin({ user, logout }) {
             </b>
           </button>
 
-          {/* END ELECTION */}
-
           <button
             className="menu-item"
             onClick={endElection}
           >
             🏁 End Election
           </button>
-
-          {/* RESTART ELECTION */}
 
           <button
             className="menu-item"
@@ -980,19 +862,11 @@ function Admin({ user, logout }) {
             🔄 Restart Election
           </button>
 
-          {/* REFRESH */}
-
           <button
             className="menu-item"
             onClick={async () => {
-              setLoading(true);
-
-              await Promise.all([
-                fetchCandidates(),
-                fetchUsers(),
-              ]);
-
-              setLoading(false);
+              await fetchCandidates();
+              await fetchUsers();
 
               setMessage(
                 "Data refreshed successfully 🔄"
@@ -1004,8 +878,6 @@ function Admin({ user, logout }) {
 
         </div>
 
-        {/* LOGOUT */}
-
         <button
           className="admin-logout"
           onClick={handleLogout}
@@ -1015,13 +887,11 @@ function Admin({ user, logout }) {
 
       </aside>
 
-      {/* =================================================
-          MAIN
-      ================================================= */}
+      {/* ================= MAIN ================= */}
 
       <main className="admin-main">
 
-        {/* TOPBAR */}
+        {/* ================= TOPBAR ================= */}
 
         <header className="admin-topbar">
 
@@ -1056,7 +926,7 @@ function Admin({ user, logout }) {
 
         </header>
 
-        {/* MESSAGE */}
+        {/* ================= MESSAGE ================= */}
 
         {message && (
           <div className="admin-message">
@@ -1074,9 +944,7 @@ function Admin({ user, logout }) {
           </div>
         )}
 
-        {/* =================================================
-            DASHBOARD
-        ================================================= */}
+        {/* ================= DASHBOARD ================= */}
 
         {activePage === "dashboard" && (
           <section>
@@ -1110,7 +978,6 @@ function Admin({ user, logout }) {
             <div className="stats-grid">
 
               <div className="stat-card blue">
-
                 <div className="stat-icon">
                   👤
                 </div>
@@ -1124,11 +991,9 @@ function Admin({ user, logout }) {
                     {approvedUsers.length}
                   </strong>
                 </div>
-
               </div>
 
               <div className="stat-card orange">
-
                 <div className="stat-icon">
                   ⏳
                 </div>
@@ -1142,11 +1007,9 @@ function Admin({ user, logout }) {
                     {pendingUsers.length}
                   </strong>
                 </div>
-
               </div>
 
               <div className="stat-card green">
-
                 <div className="stat-icon">
                   🗳️
                 </div>
@@ -1160,11 +1023,9 @@ function Admin({ user, logout }) {
                     {pendingCandidateUsers.length}
                   </strong>
                 </div>
-
               </div>
 
               <div className="stat-card purple">
-
                 <div className="stat-icon">
                   🏆
                 </div>
@@ -1178,7 +1039,6 @@ function Admin({ user, logout }) {
                     {totalVotes}
                   </strong>
                 </div>
-
               </div>
 
             </div>
@@ -1200,7 +1060,8 @@ function Admin({ user, logout }) {
                 </strong>
 
                 <span>
-                  {pendingCandidateUsers.length}{" "}
+                  {pendingCandidateUsers.length}
+                  {" "}
                   pending
                 </span>
               </button>
@@ -1220,7 +1081,8 @@ function Admin({ user, logout }) {
                 </strong>
 
                 <span>
-                  {pendingUsers.length}{" "}
+                  {pendingUsers.length}
+                  {" "}
                   pending
                 </span>
               </button>
@@ -1230,9 +1092,7 @@ function Admin({ user, logout }) {
           </section>
         )}
 
-        {/* =================================================
-            VOTER REQUESTS
-        ================================================= */}
+        {/* ================= VOTER REQUESTS ================= */}
 
         {activePage === "pendingUsers" && (
           <section>
@@ -1297,9 +1157,7 @@ function Admin({ user, logout }) {
           </section>
         )}
 
-        {/* =================================================
-            CANDIDATE REQUESTS
-        ================================================= */}
+        {/* ================= CANDIDATE REQUESTS ================= */}
 
         {activePage === "candidateRequests" && (
           <section>
@@ -1374,9 +1232,7 @@ function Admin({ user, logout }) {
           </section>
         )}
 
-        {/* =================================================
-            ALL VOTERS
-        ================================================= */}
+        {/* ================= ALL VOTERS ================= */}
 
         {activePage === "users" && (
           <section>
@@ -1420,13 +1276,10 @@ function Admin({ user, logout }) {
                     item.role === "user"
                 ).length === 0 ? (
                 <div className="empty-state">
-
                   <div>👤</div>
-
                   <h3>
                     No Registered Voters
                   </h3>
-
                 </div>
               ) : (
                 users
@@ -1444,9 +1297,7 @@ function Admin({ user, logout }) {
           </section>
         )}
 
-        {/* =================================================
-            APPROVED CANDIDATES
-        ================================================= */}
+        {/* ================= APPROVED CANDIDATES ================= */}
 
         {activePage === "approvedCandidates" && (
           <section>
@@ -1512,9 +1363,7 @@ function Admin({ user, logout }) {
           </section>
         )}
 
-        {/* =================================================
-            ELECTION CANDIDATES
-        ================================================= */}
+        {/* ================= ELECTION CANDIDATES ================= */}
 
         {activePage === "candidates" && (
           <section>
@@ -1616,18 +1465,12 @@ function Admin({ user, logout }) {
                           <strong>
                             {candidate.name}
                           </strong>
-
-                          <small>
-                            ID:{" "}
-                            {candidate._id?.slice(-6)}
-                          </small>
                         </div>
 
                       </div>
 
                       <span>
-                        {candidate.party ||
-                          "Independent"}
+                        {candidate.party}
                       </span>
 
                       <strong>
