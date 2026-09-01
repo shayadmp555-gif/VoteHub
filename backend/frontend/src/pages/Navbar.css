@@ -1,0 +1,260 @@
+/* ================================
+   VOTEHUB NAVBAR
+================================ */
+
+.navbar {
+  width: 100%;
+  min-height: 68px;
+  background: #07111f;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding: 0 32px;
+  box-sizing: border-box;
+
+  position: relative;
+  z-index: 9999;
+
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* ================================
+   LOGO
+================================ */
+
+.navbar-logo {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+
+  color: white;
+  text-decoration: none;
+
+  font-size: 21px;
+  font-weight: 800;
+
+  white-space: nowrap;
+}
+
+.logo-green {
+  color: #4ade80;
+}
+
+/* ================================
+   DESKTOP LINKS
+================================ */
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-link {
+  color: #dbeafe;
+  text-decoration: none;
+
+  padding: 10px 14px;
+  border-radius: 9px;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.nav-link.active {
+  background: rgba(59, 130, 246, 0.18);
+  color: #60a5fa;
+}
+
+/* ================================
+   LOGOUT
+================================ */
+
+.logout-btn {
+  border: none;
+  outline: none;
+
+  background: #ef4444;
+  color: white;
+
+  padding: 10px 17px;
+  border-radius: 9px;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  margin-left: 8px;
+
+  transition: all 0.2s ease;
+}
+
+.logout-btn:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+/* ================================
+   MOBILE BUTTON
+================================ */
+
+.mobile-menu-btn {
+  display: none;
+
+  border: none;
+  outline: none;
+
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+
+  width: 42px;
+  height: 42px;
+
+  border-radius: 9px;
+
+  font-size: 22px;
+  cursor: pointer;
+}
+
+/* ================================
+   MOBILE MENU
+================================ */
+
+.mobile-menu {
+  display: none;
+}
+
+/* ================================
+   MOBILE RESPONSIVE
+================================ */
+
+@media (max-width: 768px) {
+
+  .navbar {
+    min-height: 62px;
+    padding: 0 16px;
+  }
+
+  .navbar-logo {
+    font-size: 18px;
+  }
+
+  /* Hide desktop menu */
+  .navbar-links {
+    display: none;
+  }
+
+  /* Show hamburger */
+  .mobile-menu-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Mobile dropdown */
+  .mobile-menu {
+    display: flex;
+
+    position: absolute;
+
+    top: 62px;
+    left: 0;
+    right: 0;
+
+    width: 100%;
+
+    background: #07111f;
+
+    padding: 12px 14px 16px;
+
+    box-sizing: border-box;
+
+    flex-direction: column;
+    gap: 7px;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .mobile-link {
+    display: block;
+
+    width: 100%;
+    box-sizing: border-box;
+
+    padding: 13px 14px;
+
+    border-radius: 9px;
+
+    color: #e5e7eb;
+    text-decoration: none;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    background: rgba(255, 255, 255, 0.03);
+  }
+
+  .mobile-link:hover {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .mobile-link.active {
+    background: rgba(59, 130, 246, 0.18);
+    color: #60a5fa;
+  }
+
+  .mobile-logout {
+    width: 100%;
+
+    border: none;
+    outline: none;
+
+    padding: 13px 14px;
+
+    border-radius: 9px;
+
+    background: #ef4444;
+    color: white;
+
+    font-size: 15px;
+    font-weight: 700;
+
+    text-align: left;
+
+    cursor: pointer;
+  }
+}
+
+/* ================================
+   SMALL MOBILE
+================================ */
+
+@media (max-width: 400px) {
+
+  .navbar {
+    padding: 0 12px;
+  }
+
+  .navbar-logo {
+    font-size: 17px;
+  }
+
+  .mobile-menu-btn {
+    width: 39px;
+    height: 39px;
+    font-size: 20px;
+  }
+}

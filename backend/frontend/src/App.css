@@ -8955,3 +8955,40 @@ footer {
   }
 
 }
+/* ================= MOBILE DARK FIX ================= */
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  background: #0f1117 !important;
+}
+
+body {
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  body,
+  #root {
+    background: #0f1117 !important;
+  }
+
+  .dashboard,
+  .user-dashboard,
+  .main-content,
+  .page-container,
+  .dashboard-container {
+    background: #0f1117 !important;
+  }
+
+  .card,
+  .candidate-card,
+  .info-card,
+  .result-card {
+    background: #171a21 !important;
+    color: #ffffff;
+  }
+}
