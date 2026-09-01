@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const API = import.meta.env.VITE_API_URL ||
- "https://votehub-8gj9.onrender.com";
+ "https://votehub-8gj9.onrender.com/api";
 
 function Login({ onLogin, goRegister }) {
   const [email, setEmail] = useState("");
