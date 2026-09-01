@@ -1,6 +1,7 @@
 import { useState } from "react";
 
-const API = "http://localhost:5000/api";
+const API = import.meta.env.VITE_API_URL ||
+ "http://localhost:5000/api";
 
 function Login({ onLogin, goRegister }) {
   const [email, setEmail] = useState("");
@@ -41,18 +42,11 @@ function Login({ onLogin, goRegister }) {
       if (!response.ok) {
         setMessage(data.message || "Login failed");
 
-        // Pending account
         if (data.status === "pending") {
           setMessageType("pending");
-        }
-
-        // Rejected account
-        else if (data.status === "rejected") {
+        } else if (data.status === "rejected") {
           setMessageType("rejected");
-        }
-
-        // Normal error
-        else {
+        } else {
           setMessageType("error");
         }
 
@@ -64,7 +58,6 @@ function Login({ onLogin, goRegister }) {
       setMessageType("success");
       setMessage("Login successful! Redirecting...");
 
-      // Only successful login reaches here
       onLogin(data.user, data.token);
 
     } catch (error) {
@@ -82,101 +75,214 @@ function Login({ onLogin, goRegister }) {
   };
 
   return (
-    <div className="auth-page">
+    <div className="login-page">
 
-      <div className="auth-card">
+      {/* =================================================
+          CONSTITUTION / INDIA SECTION
+      ================================================= */}
 
-        <div className="auth-logo">
-          🗳️
+      <div className="constitution-panel">
+
+        <div className="india-symbol">
+          🇮🇳
         </div>
 
-        <h1>Welcome Back 👋</h1>
-
-        <p className="auth-subtitle">
-          Login to your VoteHub account
+        <p className="constitution-label">
+          CONSTITUTION OF INDIA
         </p>
 
-        {message && (
-          <div
-            className="auth-message"
-            style={{
-              background:
-                messageType === "success"
-                  ? "#eaf8ef"
-                  : messageType === "pending"
-                  ? "#fff8e6"
-                  : "#fff0f0",
+        <h1 className="constitution-title">
+          We, the People of India
+        </h1>
 
-              color:
-                messageType === "success"
-                  ? "#21894d"
-                  : messageType === "pending"
-                  ? "#a66b00"
-                  : "#c33d3d",
-            }}
-          >
-            {messageType === "pending" && "⏳ "}
-            {messageType === "rejected" && "❌ "}
+        <p className="constitution-text">
+          Secure your right to participate,
+          choose your representative and
+          make your voice count.
+        </p>
 
-            {message}
+        <div className="constitution-values">
+
+          <div>
+            <span>⚖️</span>
+            <strong>Justice</strong>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit}>
+          <div>
+            <span>🕊️</span>
+            <strong>Liberty</strong>
+          </div>
 
-          <label>Email Address</label>
+          <div>
+            <span>🤝</span>
+            <strong>Equality</strong>
+          </div>
 
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) =>
-              setEmail(e.target.value)
-            }
-            autoComplete="username"
-            required
-          />
+          <div>
+            <span>🇮🇳</span>
+            <strong>Fraternity</strong>
+          </div>
 
-          <label>Password</label>
-
-          <input
-            type="password"
-            placeholder="Enter your password"
-            value={password}
-            onChange={(e) =>
-              setPassword(e.target.value)
-            }
-            autoComplete="current-password"
-            required
-          />
-
-          <button
-            type="submit"
-            disabled={loading}
-          >
-            {loading
-              ? "Logging in..."
-              : "Login →"}
-          </button>
-
-        </form>
-
-        <div className="auth-divider">
-          <span>OR</span>
         </div>
 
-        <p className="auth-switch">
+        <div className="constitution-quote">
 
-          Don't have an account?
+          <span>“</span>
 
-          <button
-            type="button"
-            onClick={goRegister}
-          >
-            Create Account
-          </button>
+          <p>
+            Your Vote is Your Voice
+          </p>
 
+          <small>
+            Participate. Choose. Make a Difference.
+          </small>
+
+        </div>
+
+        <div className="india-line">
+          <span></span>
+          <b>🟠</b>
+          <span></span>
+        </div>
+
+        <p className="constitution-footer">
+          Digital Democracy • Secure Voting • VoteHub
         </p>
+
+      </div>
+
+
+      {/* =================================================
+          LOGIN SECTION
+      ================================================= */}
+
+      <div className="login-section">
+
+        <div className="auth-card">
+
+          <div className="auth-logo">
+            🗳️
+          </div>
+
+          <p className="login-brand">
+            Vote<span>Hub</span>
+          </p>
+
+          <h2>
+            Welcome Back 👋
+          </h2>
+
+          <p className="auth-subtitle">
+            Login to your VoteHub account
+          </p>
+
+
+          {/* ================= MESSAGE ================= */}
+
+          {message && (
+            <div
+              className={`auth-message ${messageType}`}
+            >
+              {messageType === "pending" && "⏳ "}
+              {messageType === "rejected" && "❌ "}
+              {messageType === "success" && "✅ "}
+
+              {message}
+            </div>
+          )}
+
+
+          {/* ================= LOGIN FORM ================= */}
+
+          <form onSubmit={handleSubmit}>
+
+            <label>
+              Email Address
+            </label>
+
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+              autoComplete="username"
+              required
+            />
+
+
+            <label>
+              Password
+            </label>
+
+            <input
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) =>
+                setPassword(e.target.value)
+              }
+              autoComplete="current-password"
+              required
+            />
+
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="login-submit"
+            >
+              {loading
+                ? "Logging in..."
+                : "Login →"}
+            </button>
+
+          </form>
+
+
+          {/* ================= DIVIDER ================= */}
+
+          <div className="auth-divider">
+            <span>OR</span>
+          </div>
+
+
+          {/* ================= REGISTER ================= */}
+
+          <p className="auth-switch">
+
+            Don't have an account?
+
+            <button
+              type="button"
+              onClick={goRegister}
+            >
+              Create Account
+            </button>
+
+          </p>
+
+
+          {/* ================= SECURITY ================= */}
+
+          <div className="login-security">
+
+            <span>🔐</span>
+
+            <div>
+              <strong>
+                Secure Digital Voting
+              </strong>
+
+              <small>
+                Your account and vote are protected
+              </small>
+            </div>
+
+          </div>
+
+        </div>
 
       </div>
 

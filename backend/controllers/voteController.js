@@ -1,60 +1,81 @@
 const Vote = require("../models/Vote");
-const User = require("../models/User");
 const Candidate = require("../models/Candidate");
+const User = require("../models/User");
 const Election = require("../models/Election");
 
 // ================= CAST VOTE =================
 
 exports.castVote = async (req, res) => {
   try {
-    const userId = req.user.id;
-    const { candidateId } = req.body;
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        message: "Please login first.",
+      });
+    }
 
-    // ================= CHECK ELECTION =================
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found.",
+      });
+    }
+
+    if (user.role !== "user") {
+      return res.status(403).json({
+        message: "Only voters can vote.",
+      });
+    }
+
+    if (user.isApproved !== true) {
+      return res.status(403).json({
+        message: "Your account is not approved.",
+      });
+    }
+
+    if (user.rejected === true) {
+      return res.status(403).json({
+        message: "Your account has been rejected.",
+      });
+    }
+
+    // ================= ELECTION CHECK =================
 
     const election = await Election.findOne();
 
     if (election && election.status === "ended") {
       return res.status(403).json({
-        message:
-          "Election has ended. Voting is no longer allowed.",
+        message: "Election has ended. Voting is closed.",
       });
     }
+
+    const { candidateId } = req.body;
 
     if (!candidateId) {
       return res.status(400).json({
-        message: "Candidate is required",
+        message: "Candidate ID is required.",
       });
     }
 
-    // ================= CHECK USER =================
+    // ================= ALREADY VOTED =================
 
-    const user = await User.findById(userId);
-
-    if (!user) {
-      return res.status(404).json({
-        message: "User not found",
-      });
-    }
-
-    // ================= CHECK APPROVAL =================
-
-    if (!user.isApproved) {
-      return res.status(403).json({
-        message:
-          "Your account is waiting for admin approval.",
-      });
-    }
-
-    // ================= CHECK ALREADY VOTED =================
-
-    if (user.hasVoted) {
+    if (user.hasVoted === true) {
       return res.status(400).json({
-        message: "You have already voted",
+        message: "You have already voted.",
       });
     }
 
-    // ================= CHECK CANDIDATE =================
+    const existingVote = await Vote.findOne({
+      userId: user._id,
+    });
+
+    if (existingVote) {
+      return res.status(400).json({
+        message: "You have already voted.",
+      });
+    }
+
+    // ================= FIND CANDIDATE =================
 
     const candidate = await Candidate.findOne({
       _id: candidateId,
@@ -63,46 +84,36 @@ exports.castVote = async (req, res) => {
 
     if (!candidate) {
       return res.status(404).json({
-        message:
-          "Candidate not found or not approved",
-      });
-    }
-
-    // ================= EXTRA DUPLICATE CHECK =================
-
-    const existingVote = await Vote.findOne({
-      user: userId,
-    });
-
-    if (existingVote) {
-      return res.status(400).json({
-        message: "You have already voted",
+        message: "Approved candidate not found.",
       });
     }
 
     // ================= CREATE VOTE =================
 
     await Vote.create({
-      user: userId,
-      candidate: candidateId,
+      userId: user._id,
+      candidateId: candidate._id,
     });
 
-    // Increase candidate vote count
-    candidate.votes += 1;
+    // ================= INCREASE CANDIDATE VOTES =================
+
+    candidate.votes =
+      Number(candidate.votes || 0) + 1;
+
     await candidate.save();
 
-    // Mark user as voted
+    // ================= UPDATE USER =================
+
     user.hasVoted = true;
+
     await user.save();
 
     res.status(201).json({
       success: true,
-      message: "Vote submitted successfully",
+      message: "Vote submitted successfully.",
     });
-
   } catch (error) {
-
-    console.log("Vote Error:", error);
+    console.log("Cast Vote Error:", error);
 
     res.status(500).json({
       message: error.message,
@@ -110,25 +121,49 @@ exports.castVote = async (req, res) => {
   }
 };
 
-
-// ================= GET RESULTS =================
+/// ================= GET RESULTS =================
 
 exports.getResults = async (req, res) => {
   try {
+    // ================= ELECTION CHECK =================
 
-    const results = await Candidate.find({
+    const election = await Election.findOne();
+
+    // Results only available after election ends
+    if (!election || election.status !== "ended") {
+      return res.status(403).json({
+        success: false,
+        message: "Election is still running. Results will be available after the election ends.",
+        resultsAvailable: false,
+      });
+    }
+
+    // ================= GET RESULTS =================
+
+    const candidates = await Candidate.find({
       status: "approved",
     })
       .select("name party photo votes")
       .sort({ votes: -1 });
 
-    res.status(200).json(results);
+    const totalVotes = candidates.reduce(
+      (total, candidate) =>
+        total + Number(candidate.votes || 0),
+      0
+    );
+
+    res.status(200).json({
+      success: true,
+      resultsAvailable: true,
+      candidates,
+      totalVotes,
+    });
 
   } catch (error) {
-
-    console.log("Results Error:", error);
+    console.log("Get Results Error:", error);
 
     res.status(500).json({
+      success: false,
       message: error.message,
     });
   }

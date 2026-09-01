@@ -1,7 +1,8 @@
 const User = require("../models/User");
-const Vote = require("../models/Vote");
+const Candidate = require("../models/Candidate");
 
 // ================= GET ALL USERS =================
+// Admin only
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -9,27 +10,24 @@ exports.getAllUsers = async (req, res) => {
       .select("-password")
       .sort({ createdAt: -1 });
 
-    console.log("===== ALL USERS =====");
-    console.log(users);
-
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
-      count: users.length,
       users,
     });
-
   } catch (error) {
-    console.log("Get Users Error:", error);
+    console.log(
+      "Get All Users Error:",
+      error
+    );
 
-    return res.status(500).json({
-      success: false,
+    res.status(500).json({
       message: error.message,
     });
   }
 };
 
-
 // ================= APPROVE USER =================
+// Admin only
 
 exports.approveUser = async (req, res) => {
   try {
@@ -37,20 +35,62 @@ exports.approveUser = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found",
+        message: "User not found.",
       });
     }
 
+    // Admin cannot be modified
+    if (user.role === "admin") {
+      return res.status(400).json({
+        message: "Admin account cannot be modified.",
+      });
+    }
+
+    // Approve user account
     user.isApproved = true;
     user.rejected = false;
 
     await user.save();
 
+    // ==========================================
+    // CANDIDATE ACCOUNT
+    // Create election candidate profile
+    // ==========================================
+
+    if (user.role === "candidate") {
+      const existingCandidate =
+        await Candidate.findOne({
+          userId: user._id,
+        });
+
+      // Candidate profile doesn't exist
+      if (!existingCandidate) {
+        await Candidate.create({
+          userId: user._id,
+
+          name: user.name,
+
+          party: "Independent",
+
+          photo: "",
+
+          status: "pending",
+
+          votes: 0,
+        });
+      }
+    }
+
     return res.status(200).json({
       success: true,
-      message: "User approved successfully",
+
+      message:
+        user.role === "candidate"
+          ? "Candidate account approved successfully. Election profile created and is waiting for approval."
+          : "Voter approved successfully.",
+
       user: {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -61,7 +101,10 @@ exports.approveUser = async (req, res) => {
     });
 
   } catch (error) {
-    console.log("Approve User Error:", error);
+    console.log(
+      "Approve User Error:",
+      error
+    );
 
     return res.status(500).json({
       message: error.message,
@@ -69,16 +112,25 @@ exports.approveUser = async (req, res) => {
   }
 };
 
-
 // ================= REJECT USER =================
+// Admin only
 
 exports.rejectUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
+    const user = await User.findById(
+      req.params.id
+    );
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found",
+        message: "User not found.",
+      });
+    }
+
+    if (user.role === "admin") {
+      return res.status(400).json({
+        message:
+          "Admin account cannot be modified.",
       });
     }
 
@@ -87,11 +139,29 @@ exports.rejectUser = async (req, res) => {
 
     await user.save();
 
-    return res.status(200).json({
+    // If candidate account is rejected,
+    // also reject its election profile
+    if (user.role === "candidate") {
+      await Candidate.updateMany(
+        {
+          userId: user._id,
+        },
+        {
+          status: "rejected",
+        }
+      );
+    }
+
+    res.status(200).json({
       success: true,
-      message: "User rejected successfully",
+
+      message:
+        user.role === "candidate"
+          ? "Candidate account rejected successfully."
+          : "Voter rejected successfully.",
+
       user: {
-        id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -100,18 +170,20 @@ exports.rejectUser = async (req, res) => {
         hasVoted: user.hasVoted,
       },
     });
-
   } catch (error) {
-    console.log("Reject User Error:", error);
+    console.log(
+      "Reject User Error:",
+      error
+    );
 
-    return res.status(500).json({
+    res.status(500).json({
       message: error.message,
     });
   }
 };
 
-
-// ================= PERMANENT DELETE USER =================
+// ================= DELETE USER =================
+// Admin only
 
 exports.deleteUser = async (req, res) => {
   try {
@@ -121,43 +193,41 @@ exports.deleteUser = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
-        success: false,
-        message: "User not found",
+        message: "User not found.",
       });
     }
 
-    // Admin account cannot be deleted
     if (user.role === "admin") {
-      return res.status(403).json({
-        success: false,
-        message: "Admin account cannot be deleted.",
+      return res.status(400).json({
+        message:
+          "Admin account cannot be deleted.",
       });
     }
 
-    // Delete user's vote records
-    await Vote.deleteMany({
-      user: user._id,
-    });
+    // Delete candidate profile also
+    if (user.role === "candidate") {
+      await Candidate.deleteMany({
+        userId: user._id,
+      });
+    }
 
-    // Delete user permanently
     await User.findByIdAndDelete(
       user._id
     );
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
+
       message:
         "User permanently deleted successfully.",
     });
-
   } catch (error) {
     console.log(
       "Delete User Error:",
       error
     );
 
-    return res.status(500).json({
-      success: false,
+    res.status(500).json({
       message: error.message,
     });
   }

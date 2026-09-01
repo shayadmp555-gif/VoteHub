@@ -1556,3 +1556,1832 @@ input:focus {
 .delete-btn:active {
   transform: scale(0.97);
 }
+/* ================= CANDIDATE REGISTRATION ================= */
+
+.candidate-registration {
+  width: 100%;
+  box-sizing: border-box;
+  animation: candidateFormShow 0.3s ease;
+}
+
+.candidate-registration h2 {
+  margin: 0 0 6px;
+}
+
+.candidate-registration p {
+  margin-top: 5px;
+  color: #666;
+}
+
+.candidate-registration form input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 15px;
+  border: 1px solid #d9dce3;
+  border-radius: 10px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.2s;
+}
+
+.candidate-registration form input:focus {
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.10);
+}
+
+.candidate-registration form button {
+  border: none;
+  border-radius: 10px;
+  padding: 12px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.candidate-registration form .vote-btn {
+  background: #4f46e5;
+  color: white;
+}
+
+.candidate-registration form .vote-btn:hover {
+  background: #4338ca;
+}
+
+.candidate-registration form .vote-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.candidate-registration form button[type="button"] {
+  background: #eef0f4;
+  color: #333;
+}
+
+.candidate-registration form button[type="button"]:hover {
+  background: #e1e4e9;
+}
+
+/* ================= NAVBAR CANDIDATE BUTTON ================= */
+
+.nav-right button {
+  transition: 0.2s ease;
+}
+
+.nav-right button:hover {
+  transform: translateY(-1px);
+}
+
+/* ================= FORM ANIMATION ================= */
+
+@keyframes candidateFormShow {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width: 768px) {
+
+  .candidate-registration {
+    padding: 20px !important;
+  }
+
+  .candidate-registration form input {
+    font-size: 14px;
+  }
+
+  .candidate-registration form > div {
+    flex-direction: column;
+  }
+
+  .candidate-registration form button {
+    width: 100%;
+  }
+}/* =========================================================
+   VOTEHUB ADMIN PANEL
+   MODERN + PROFESSIONAL INDIAN ELECTION THEME
+   PART 1 / 2
+========================================================= */
+
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+
+/* =========================================================
+   RESET
+========================================================= */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: #070b16;
+  color: #f5f7ff;
+  min-width: 320px;
+}
+
+button,
+input {
+  font-family: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:focus,
+input:focus {
+  outline: none;
+}
+
+
+/* =========================================================
+   ROOT COLORS
+========================================================= */
+
+:root {
+  --bg: #070b16;
+  --bg-light: #0c1324;
+
+  --sidebar: #0a1120;
+
+  --card: #10192b;
+  --card-light: #141f34;
+
+  --border: #24324d;
+  --border-light: #30415f;
+
+  --text: #f7f8fc;
+  --text-secondary: #b5bfd2;
+  --muted: #73819d;
+
+  --primary: #5965f2;
+  --primary-dark: #444bd0;
+
+  --green: #28d995;
+  --green-dark: #139765;
+
+  --red: #ff5268;
+  --red-dark: #c93349;
+
+  --orange: #ffb84d;
+
+  --blue: #55a0ff;
+
+  --saffron: #ff9933;
+  --india-green: #138808;
+
+  --shadow:
+    0 20px 50px rgba(0, 0, 0, 0.25);
+}
+
+
+/* =========================================================
+   MAIN ADMIN LAYOUT
+========================================================= */
+
+.admin-layout {
+  min-height: 100vh;
+
+  display: flex;
+
+  background:
+    radial-gradient(
+      circle at 80% 0%,
+      rgba(89, 101, 242, 0.12),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 10% 90%,
+      rgba(19, 136, 8, 0.045),
+      transparent 25%
+    ),
+    var(--bg);
+}
+
+
+/* =========================================================
+   SIDEBAR
+========================================================= */
+
+.admin-sidebar {
+  position: fixed;
+
+  left: 0;
+  top: 0;
+  bottom: 0;
+
+  width: 255px;
+
+  padding: 24px 17px;
+
+  display: flex;
+  flex-direction: column;
+
+  background:
+    linear-gradient(
+      180deg,
+      #0d1527 0%,
+      #080e1b 100%
+    );
+
+  border-right:
+    1px solid rgba(99, 102, 241, 0.16);
+
+  box-shadow:
+    12px 0 35px rgba(0, 0, 0, 0.16);
+
+  z-index: 100;
+
+  overflow-y: auto;
+}
+
+
+/* =========================================================
+   LOGO
+========================================================= */
+
+.admin-logo {
+  display: flex;
+  align-items: center;
+
+  gap: 13px;
+
+  padding:
+    5px 10px 26px;
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.07);
+}
+
+.admin-logo-icon {
+  width: 49px;
+  height: 49px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 14px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #5367f5,
+      #7b4de7
+    );
+
+  font-size: 23px;
+
+  box-shadow:
+    0 10px 30px rgba(82, 91, 242, 0.30);
+}
+
+.admin-logo h2 {
+  font-size: 24px;
+
+  font-weight: 800;
+
+  letter-spacing: -0.7px;
+}
+
+.admin-logo h2 span {
+  color: #6975f5;
+}
+
+.admin-logo small {
+  display: block;
+
+  margin-top: 4px;
+
+  color: #687696;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.7px;
+}
+
+
+/* =========================================================
+   SIDEBAR MENU
+========================================================= */
+
+.sidebar-menu {
+  margin-top: 23px;
+}
+
+.menu-item {
+  position: relative;
+
+  width: 100%;
+  min-height: 50px;
+
+  display: flex;
+  align-items: center;
+
+  padding: 0 14px;
+
+  margin-bottom: 7px;
+
+  border: 1px solid transparent;
+
+  border-radius: 11px;
+
+  background: transparent;
+
+  color: #a8b3ca;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  text-align: left;
+
+  transition:
+    0.22s ease;
+}
+
+.menu-item:hover {
+  color: white;
+
+  background:
+    rgba(99, 102, 241, 0.08);
+
+  border-color:
+    rgba(99, 102, 241, 0.15);
+
+  transform:
+    translateX(3px);
+}
+
+.menu-item.active {
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #5149df,
+      #5069ee
+    );
+
+  border-color:
+    rgba(129, 140, 248, 0.35);
+
+  box-shadow:
+    0 10px 25px rgba(79, 70, 229, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.menu-item b {
+  margin-left: auto;
+
+  min-width: 25px;
+  height: 25px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background: rgba(79, 70, 229, 0.75);
+
+  color: white;
+
+  font-size: 11px;
+}
+
+.menu-item.active b {
+  background:
+    rgba(255, 255, 255, 0.20);
+}
+
+.menu-item .pending-count {
+  background:
+    rgba(183, 122, 39, 0.85);
+}
+
+
+/* =========================================================
+   LOGOUT
+========================================================= */
+
+.admin-logout {
+  width: 100%;
+
+  min-height: 49px;
+
+  margin-top: auto;
+
+  border-radius: 11px;
+
+  background:
+    rgba(239, 68, 68, 0.055);
+
+  border:
+    1px solid rgba(239, 68, 68, 0.20);
+
+  color: #ff6476;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+  transition: 0.22s ease;
+}
+
+.admin-logout:hover {
+  background:
+    rgba(239, 68, 68, 0.12);
+
+  border-color:
+    rgba(239, 68, 68, 0.40);
+
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 8px 20px rgba(239, 68, 68, 0.08);
+}
+
+
+/* =========================================================
+   MAIN AREA
+========================================================= */
+
+.admin-main {
+  width: calc(100% - 255px);
+
+  margin-left: 255px;
+
+  min-height: 100vh;
+
+  padding-bottom: 50px;
+}
+
+
+/* =========================================================
+   TOPBAR
+========================================================= */
+
+.admin-topbar {
+  min-height: 83px;
+
+  padding: 0 35px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  position: sticky;
+
+  top: 0;
+
+  z-index: 50;
+
+  background:
+    rgba(7, 11, 22, 0.88);
+
+  border-bottom:
+    1px solid rgba(255, 255, 255, 0.07);
+
+  backdrop-filter:
+    blur(18px);
+}
+
+.admin-topbar > div:first-child small {
+  display: block;
+
+  color: #687695;
+
+  font-size: 11px;
+
+  margin-bottom: 5px;
+}
+
+.admin-topbar h1 {
+  font-size: 22px;
+
+  font-weight: 800;
+
+  letter-spacing: -0.5px;
+}
+
+
+/* =========================================================
+   ADMIN PROFILE
+========================================================= */
+
+.admin-profile {
+  display: flex;
+
+  align-items: center;
+
+  gap: 11px;
+}
+
+.admin-avatar {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+
+  background:
+    linear-gradient(
+      135deg,
+      #6366f1,
+      #8b5cf6
+    );
+
+  color: white;
+
+  font-weight: 800;
+
+  box-shadow:
+    0 8px 22px rgba(99, 102, 241, 0.25);
+}
+
+.admin-profile strong {
+  display: block;
+
+  font-size: 13px;
+}
+
+.admin-profile small {
+  display: block;
+
+  margin-top: 3px;
+
+  color: #6e7c99;
+
+  font-size: 10px;
+}
+
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.admin-message {
+  margin:
+    20px 35px 0;
+
+  padding:
+    13px 17px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-radius: 10px;
+
+  background:
+    rgba(67, 91, 213, 0.12);
+
+  border:
+    1px solid rgba(91, 106, 235, 0.28);
+
+  color: #cbd5ff;
+
+  font-size: 13px;
+}
+
+.admin-message button {
+  width: 28px;
+  height: 28px;
+
+  border: 0;
+
+  border-radius: 7px;
+
+  background:
+    rgba(255, 255, 255, 0.06);
+
+  color: #aab6d2;
+
+  font-size: 18px;
+}
+
+
+/* =========================================================
+   CONTENT SECTIONS
+========================================================= */
+
+.admin-main > section {
+  padding:
+    30px 35px;
+}
+
+
+/* =========================================================
+   WELCOME BANNER
+========================================================= */
+
+.welcome-banner {
+  position: relative;
+
+  min-height: 165px;
+
+  padding: 30px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  overflow: hidden;
+
+  border-radius: 18px;
+
+  border:
+    1px solid rgba(99, 102, 241, 0.25);
+
+  background:
+    linear-gradient(
+      120deg,
+      #171f3d,
+      #10182d 55%,
+      #201637
+    );
+
+  box-shadow:
+    var(--shadow);
+
+  transition:
+    0.25s ease;
+}
+
+.welcome-banner:hover {
+  transform:
+    translateY(-2px);
+
+  border-color:
+    rgba(129, 140, 248, 0.38);
+}
+
+.welcome-banner::before {
+  content: "";
+
+  position: absolute;
+
+  width: 310px;
+  height: 310px;
+
+  right: -110px;
+  top: -155px;
+
+  border-radius: 50%;
+
+  background:
+    rgba(99, 102, 241, 0.12);
+}
+
+.welcome-label {
+  color: #a5b4fc;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.7px;
+}
+
+.welcome-banner h2 {
+  margin-top: 8px;
+
+  font-size: 25px;
+
+  font-weight: 800;
+
+  letter-spacing: -0.8px;
+}
+
+.welcome-banner p {
+  margin-top: 8px;
+
+  color: #929fba;
+
+  font-size: 13px;
+}
+
+.banner-icon {
+  position: relative;
+
+  width: 88px;
+  height: 88px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 23px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #4f46e5,
+      #8b5cf6
+    );
+
+  font-size: 39px;
+
+  box-shadow:
+    0 15px 40px rgba(79, 70, 229, 0.28);
+}
+
+
+/* =========================================================
+   STATS GRID
+========================================================= */
+
+.stats-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  gap: 18px;
+
+  margin-top: 22px;
+}
+
+
+/* =========================================================
+   STAT CARD
+========================================================= */
+
+.stat-card {
+  position: relative;
+
+  min-height: 132px;
+
+  padding: 22px;
+
+  display: flex;
+  align-items: center;
+
+  gap: 17px;
+
+  overflow: hidden;
+
+  border-radius: 15px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+
+  background:
+    rgba(16, 25, 43, 0.84);
+
+  backdrop-filter:
+    blur(8px);
+
+  transition:
+    0.23s ease;
+}
+
+.stat-card:hover {
+  transform:
+    translateY(-5px);
+
+  border-color:
+    rgba(129, 140, 248, 0.30);
+
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.27);
+}
+
+.stat-card::after {
+  content: "";
+
+  position: absolute;
+
+  width: 100px;
+  height: 100px;
+
+  right: -35px;
+  bottom: -45px;
+
+  border-radius: 50%;
+
+  background: currentColor;
+
+  opacity: 0.06;
+}
+
+.stat-card .stat-icon {
+  width: 51px;
+  height: 51px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  border-radius: 14px;
+
+  font-size: 22px;
+}
+
+.stat-card span {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: #8795b1;
+
+  font-size: 12px;
+
+  font-weight: 600;
+}
+
+.stat-card strong {
+  display: block;
+
+  font-size: 29px;
+
+  font-weight: 800;
+
+  letter-spacing: -1px;
+}
+
+
+/* =========================================================
+   STAT COLORS
+========================================================= */
+
+.stat-card.blue {
+  color: #5da5ff;
+
+  background:
+    rgba(44, 101, 188, 0.11);
+
+  border-color:
+    rgba(74, 142, 231, 0.24);
+}
+
+.stat-card.blue .stat-icon {
+  background:
+    rgba(55, 125, 240, 0.16);
+}
+
+
+.stat-card.orange {
+  color: #ffbd55;
+
+  background:
+    rgba(167, 106, 25, 0.11);
+
+  border-color:
+    rgba(194, 135, 38, 0.25);
+}
+
+.stat-card.orange .stat-icon {
+  background:
+    rgba(240, 164, 45, 0.15);
+}
+
+
+.stat-card.green {
+  color: #41dfa0;
+
+  background:
+    rgba(23, 127, 91, 0.11);
+
+  border-color:
+    rgba(33, 151, 109, 0.25);
+}
+
+.stat-card.green .stat-icon {
+  background:
+    rgba(40, 211, 145, 0.14);
+}
+
+
+.stat-card.purple {
+  color: #b489ff;
+
+  background:
+    rgba(95, 61, 172, 0.11);
+
+  border-color:
+    rgba(136, 79, 239, 0.23);
+}
+
+.stat-card.purple .stat-icon {
+  background:
+    rgba(136, 79, 239, 0.16);
+}
+
+
+/* =========================================================
+   QUICK ACTION CARDS
+========================================================= */
+
+.quick-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 18px;
+
+  margin-top: 18px;
+}
+
+.quick-card {
+  min-height: 76px;
+
+  padding: 18px 21px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  text-align: left;
+
+  border-radius: 13px;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.08);
+
+  background:
+    linear-gradient(
+      145deg,
+      #111a2e,
+      #0d1526
+    );
+
+  color: white;
+
+  transition:
+    0.22s ease;
+}
+
+.quick-card:hover {
+  background:
+    linear-gradient(
+      145deg,
+      #18223a,
+      #101a30
+    );
+
+  border-color:
+    rgba(99, 102, 241, 0.30);
+
+  transform:
+    translateY(-3px);
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.22);
+}
+
+.quick-card strong {
+  font-size: 13px;
+}
+
+.quick-card span {
+  color: #7685a3;
+
+  font-size: 11px;
+}
+
+
+/* =========================================================
+   ADMIN SECTION
+========================================================= */
+
+.admin-section {
+  margin-top: 24px;
+
+  overflow: hidden;
+
+  border-radius: 17px;
+
+  border:
+    1px solid #24324d;
+
+  background:
+    linear-gradient(
+      145deg,
+      #111b2f,
+      #0c1527
+    );
+
+  box-shadow:
+    var(--shadow);
+}
+
+
+/* =========================================================
+   SECTION HEADING
+========================================================= */
+
+.section-heading {
+  min-height: 100px;
+
+  padding: 23px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom:
+    1px solid #24324d;
+}
+
+.section-heading h2 {
+  font-size: 18px;
+
+  font-weight: 800;
+}
+
+.section-heading p {
+  margin-top: 6px;
+
+  color: #75839f;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   PAGE HEADER
+========================================================= */
+
+.page-header {
+  min-height: 90px;
+
+  margin-bottom: 22px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-label {
+  display: block;
+
+  margin-bottom: 7px;
+
+  color: #a5b4fc;
+
+  font-size: 10px;
+
+  font-weight: 800;
+
+  letter-spacing: 1.5px;
+}
+
+.page-header h2 {
+  font-size: 25px;
+
+  font-weight: 800;
+
+  letter-spacing: -0.7px;
+}
+
+.page-header p {
+  margin-top: 6px;
+
+  color: var(--muted);
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   REFRESH BUTTON
+========================================================= */
+
+.refresh-btn {
+  min-height: 42px;
+
+  padding: 0 17px;
+
+  border: 0;
+
+  border-radius: 9px;
+
+  color: white;
+
+  background:
+    linear-gradient(
+      135deg,
+      #5a45e7,
+      #4c65ed
+    );
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+  box-shadow:
+    0 8px 20px rgba(83, 71, 222, 0.22);
+
+  transition:
+    0.2s ease;
+}
+
+.refresh-btn:hover {
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 12px 25px rgba(83, 71, 222, 0.32);
+}/* =========================================================
+   VOTEHUB ADMIN PANEL — PART 2
+   Tables + Empty States + Candidate Form + Responsive
+========================================================= */
+
+
+/* =========================================================
+   EMPTY / LOADING
+========================================================= */
+
+.empty-state {
+  min-height: 190px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+
+  text-align: center;
+
+  color: #71809c;
+}
+
+.empty-state > div {
+  width: 52px;
+  height: 52px;
+
+  margin-bottom: 13px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 15px;
+
+  background: rgba(79, 70, 229, 0.10);
+
+  font-size: 23px;
+}
+
+.empty-state h3 {
+  color: #e7ebf5;
+
+  font-size: 15px;
+
+  margin-bottom: 6px;
+}
+
+.empty-state p {
+  font-size: 11px;
+
+  color: #71809c;
+}
+
+.loading-box {
+  min-height: 170px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #7584a0;
+
+  font-size: 13px;
+}
+
+
+/* =========================================================
+   CANDIDATE TABLE — 5 COLUMNS
+========================================================= */
+
+.modern-table:has(.candidate-info)
+  .modern-table-head,
+.modern-table:has(.candidate-info)
+  .modern-table-row {
+
+  grid-template-columns:
+    1.35fr
+    1fr
+    0.65fr
+    0.9fr
+    1.15fr;
+}
+
+
+/* =========================================================
+   TABLE HOVER EFFECT
+========================================================= */
+
+.modern-table-row {
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.modern-table-row:hover {
+  transform: translateY(-2px);
+
+  border-color: #3b4d70;
+
+  background: #121e34;
+
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.14);
+}
+
+
+/* =========================================================
+   TABLE TEXT
+========================================================= */
+
+.modern-table-row strong {
+  color: #f1f4fb;
+}
+
+.modern-table-row small {
+  color: #71809c;
+}
+
+
+/* =========================================================
+   DELETE BUTTON
+========================================================= */
+
+.delete-btn {
+  background: rgba(220, 38, 38, 0.08);
+
+  color: #ff6575;
+
+  border: 1px solid rgba(220, 38, 38, 0.28);
+
+  padding: 8px 14px;
+
+  border-radius: 8px;
+
+  font-size: 12px;
+
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition: all 0.2s ease;
+}
+
+.delete-btn:hover {
+  background: #dc2626;
+
+  color: white;
+
+  border-color: #dc2626;
+
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 6px 16px rgba(220, 38, 38, 0.22);
+}
+
+.delete-btn:active {
+  transform: scale(0.97);
+}
+
+
+/* =========================================================
+   CANDIDATE REGISTRATION
+========================================================= */
+
+.candidate-registration {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  animation:
+    candidateFormShow 0.3s ease;
+}
+
+.candidate-registration h2 {
+  margin: 0 0 6px;
+
+  color: #f5f7ff;
+
+  font-size: 20px;
+}
+
+.candidate-registration p {
+  margin-top: 5px;
+
+  color: #7e8da9;
+
+  line-height: 1.6;
+
+  font-size: 12px;
+}
+
+
+/* =========================================================
+   CANDIDATE FORM
+========================================================= */
+
+.candidate-registration form {
+  margin-top: 20px;
+}
+
+.candidate-registration form input {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  padding: 13px 15px;
+
+  border: 1px solid #293954;
+
+  border-radius: 10px;
+
+  background: #0b1425;
+
+  color: #f5f7ff;
+
+  font-size: 13px;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.candidate-registration form input::placeholder {
+  color: #65738e;
+}
+
+.candidate-registration form input:focus {
+  border-color: #5965f2;
+
+  background: #0d172a;
+
+  box-shadow:
+    0 0 0 3px rgba(89, 101, 242, 0.12);
+}
+
+
+/* =========================================================
+   FORM BUTTONS
+========================================================= */
+
+.candidate-registration form button {
+  border: none;
+
+  border-radius: 10px;
+
+  padding: 12px 20px;
+
+  cursor: pointer;
+
+  font-weight: 700;
+
+  font-size: 13px;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.candidate-registration form button:hover {
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   SUBMIT BUTTON
+========================================================= */
+
+.candidate-registration form .vote-btn {
+  background:
+    linear-gradient(
+      135deg,
+      #5b4cf0,
+      #4769ee
+    );
+
+  color: white;
+
+  box-shadow:
+    0 8px 20px rgba(78, 78, 229, 0.22);
+}
+
+.candidate-registration form .vote-btn:hover {
+  background:
+    linear-gradient(
+      135deg,
+      #6657f4,
+      #5574f2
+    );
+
+  box-shadow:
+    0 10px 25px rgba(78, 78, 229, 0.32);
+}
+
+.candidate-registration form .vote-btn:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+
+  transform: none;
+
+  box-shadow: none;
+}
+
+
+/* =========================================================
+   CANCEL BUTTON
+========================================================= */
+
+.candidate-registration
+form button[type="button"] {
+
+  background: #182236;
+
+  color: #b7c0d4;
+
+  border: 1px solid #293954;
+}
+
+.candidate-registration
+form button[type="button"]:hover {
+
+  background: #202c43;
+
+  color: white;
+
+  border-color: #3a4b6b;
+}
+
+
+/* =========================================================
+   NAVBAR BUTTONS
+========================================================= */
+
+.nav-right button {
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.nav-right button:hover {
+  transform: translateY(-1px);
+}
+
+
+/* =========================================================
+   FORM ANIMATION
+========================================================= */
+
+@keyframes candidateFormShow {
+
+  from {
+    opacity: 0;
+
+    transform:
+      translateY(-8px)
+      scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+
+    transform:
+      translateY(0)
+      scale(1);
+  }
+
+}
+
+
+/* =========================================================
+   SCROLLBAR
+========================================================= */
+
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: #080e1b;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #293653;
+
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3d4c70;
+}
+
+
+/* =========================================================
+   RESPONSIVE — 1200px
+========================================================= */
+
+@media (max-width: 1200px) {
+
+  .stats-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .admin-main > section {
+    padding-left: 25px;
+    padding-right: 25px;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 900px
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .admin-sidebar {
+    width: 78px;
+
+    padding: 20px 11px;
+  }
+
+  .admin-logo {
+    justify-content: center;
+
+    padding-left: 0;
+    padding-right: 0;
+  }
+
+  .admin-logo > div:last-child {
+    display: none;
+  }
+
+  .menu-item {
+    justify-content: center;
+
+    padding: 0;
+
+    font-size: 0;
+  }
+
+  .menu-item b {
+    display: none;
+  }
+
+  .admin-logout {
+    font-size: 0;
+  }
+
+  .admin-main {
+    width: calc(100% - 78px);
+
+    margin-left: 78px;
+  }
+
+  .stats-grid {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+  .welcome-banner {
+    gap: 20px;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 650px
+========================================================= */
+
+@media (max-width: 650px) {
+
+  .admin-topbar {
+    padding: 0 17px;
+  }
+
+  .admin-profile > div:last-child {
+    display: none;
+  }
+
+  .admin-main > section {
+    padding: 20px 14px;
+  }
+
+  .admin-message {
+    margin-left: 14px;
+
+    margin-right: 14px;
+  }
+
+  .welcome-banner {
+    padding: 23px;
+
+    min-height: 145px;
+  }
+
+  .welcome-banner h2 {
+    font-size: 20px;
+  }
+
+  .banner-icon {
+    width: 65px;
+    height: 65px;
+
+    font-size: 28px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+
+    gap: 12px;
+  }
+
+  .quick-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    align-items: flex-start;
+
+    gap: 15px;
+
+    flex-direction: column;
+  }
+
+  .section-heading {
+    align-items: flex-start;
+
+    gap: 15px;
+
+    flex-direction: column;
+  }
+
+  .candidate-toolbar {
+    justify-content: stretch;
+  }
+
+  .search-box {
+    width: 100%;
+  }
+
+  .candidate-registration {
+    padding: 20px !important;
+  }
+
+  .candidate-registration form input {
+    font-size: 14px;
+  }
+
+  .candidate-registration form > div {
+    flex-direction: column;
+  }
+
+  .candidate-registration form button {
+    width: 100%;
+  }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE — 450px
+========================================================= */
+
+@media (max-width: 450px) {
+
+  .admin-sidebar {
+    width: 65px;
+
+    padding-left: 8px;
+
+    padding-right: 8px;
+  }
+
+  .admin-main {
+    width: calc(100% - 65px);
+
+    margin-left: 65px;
+  }
+
+  .admin-logo-icon {
+    width: 42px;
+    height: 42px;
+
+    font-size: 19px;
+  }
+
+  .admin-main > section {
+    padding: 16px 10px;
+  }
+
+  .admin-topbar {
+    min-height: 72px;
+  }
+
+  .admin-topbar h1 {
+    font-size: 17px;
+  }
+
+  .welcome-banner {
+    padding: 18px;
+  }
+
+  .banner-icon {
+    display: none;
+  }
+
+  .stat-card {
+    min-height: 110px;
+  }
+
+  .admin-section {
+    border-radius: 13px;
+  }
+
+  .modern-table {
+    padding-left: 10px;
+
+    padding-right: 10px;
+  }
+
+  .page-header h2 {
+    font-size: 21px;
+  }
+
+}
+
+
+/* =========================================================
+   EXTRA MOBILE POLISH
+========================================================= */
+
+@media (max-width: 380px) {
+
+  .admin-sidebar {
+    width: 58px;
+  }
+
+  .admin-main {
+    width: calc(100% - 58px);
+
+    margin-left: 58px;
+  }
+
+  .admin-main > section {
+    padding: 14px 8px;
+  }
+
+  .admin-topbar {
+    padding: 0 12px;
+  }
+
+  .admin-topbar h1 {
+    font-size: 15px;
+  }
+
+  .welcome-banner h2 {
+    font-size: 18px;
+  }
+
+  .stat-card {
+    padding: 17px;
+  }
+
+}

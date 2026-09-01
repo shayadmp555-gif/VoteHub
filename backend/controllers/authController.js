@@ -2,7 +2,7 @@ const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 
-// ================= GENERATE TOKEN =================
+// ================= TOKEN =================
 
 const generateToken = (id, role) => {
   return jwt.sign(
@@ -19,61 +19,76 @@ const generateToken = (id, role) => {
 
 // ================= REGISTER =================
 
-exports.register = async (req, res) => {
+const register = async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const {
+      name,
+      email,
+      password,
+      role,
+    } = req.body;
 
-    // Check required fields
-    if (!name || !email || !password) {
+    // Required fields
+    if (
+      !name ||
+      !email ||
+      !password
+    ) {
       return res.status(400).json({
-        message: "All fields are required",
+        message:
+          "Name, email and password are required.",
       });
     }
 
-    // Password validation
-    if (password.length < 6) {
-      return res.status(400).json({
-        message: "Password must be at least 6 characters",
-      });
-    }
+    // Only allowed roles
+    const selectedRole =
+      role === "candidate"
+        ? "candidate"
+        : "user";
 
     // Check existing user
-    const existingUser = await User.findOne({
-      email: email.toLowerCase(),
-    });
+    const existingUser =
+      await User.findOne({
+        email: email.toLowerCase().trim(),
+      });
 
     if (existingUser) {
       return res.status(400).json({
-        message: "Email already registered",
+        message:
+          "Email already registered.",
       });
     }
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(
-      password,
-      10
-    );
+    const hashedPassword =
+      await bcrypt.hash(password, 10);
 
-    // Create new user
-    // Every new user will wait for admin approval
+    // Create user
     const user = await User.create({
-      name,
-      email: email.toLowerCase(),
+      name: name.trim(),
+
+      email: email
+        .toLowerCase()
+        .trim(),
+
       password: hashedPassword,
 
-      role: "user",
+      role: selectedRole,
 
-      // New user is pending by default
+      // IMPORTANT
+      // New users always need admin approval
       isApproved: false,
+
       rejected: false,
 
       hasVoted: false,
     });
 
     return res.status(201).json({
-      success: true,
       message:
-        "Account created successfully. Please wait for admin approval.",
+        selectedRole === "candidate"
+          ? "Candidate registration submitted. Waiting for admin approval."
+          : "Voter registration submitted. Waiting for admin approval.",
 
       user: {
         id: user._id,
@@ -87,92 +102,110 @@ exports.register = async (req, res) => {
     });
 
   } catch (error) {
-    console.log("Register Error:", error);
+
+    console.log(
+      "Register Error:",
+      error
+    );
 
     return res.status(500).json({
-      message: error.message,
+      message:
+        "Registration failed.",
+      error: error.message,
     });
   }
 };
 
-
 // ================= LOGIN =================
 
-exports.login = async (req, res) => {
+const login = async (req, res) => {
   try {
-    const { email, password } = req.body;
 
-    // Check required fields
+    const {
+      email,
+      password,
+    } = req.body;
+
     if (!email || !password) {
       return res.status(400).json({
-        message: "Email and password are required",
+        message:
+          "Email and password are required.",
       });
     }
 
-    // Find user
-    const user = await User.findOne({
-      email: email.toLowerCase(),
-    });
+    const user =
+      await User.findOne({
+        email: email
+          .toLowerCase()
+          .trim(),
+      });
 
     if (!user) {
       return res.status(401).json({
-        message: "Invalid email or password",
+        message:
+          "Invalid email or password.",
       });
     }
 
     // Check password
-    const passwordMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const passwordMatch =
+      await bcrypt.compare(
+        password,
+        user.password
+      );
 
     if (!passwordMatch) {
       return res.status(401).json({
-        message: "Invalid email or password",
+        message:
+          "Invalid email or password.",
       });
     }
 
-    // ================= USER APPROVAL CHECK =================
+    // ================= REJECTED =================
 
-    // Admin can login directly
-    if (user.role !== "admin") {
-
-      // If admin rejected user
-      if (user.rejected === true) {
-        return res.status(403).json({
-          success: false,
-          status: "rejected",
-          message:
-            "Your account request has been rejected by the admin.",
-        });
-      }
-
-      // If user is waiting for admin approval
-      if (user.isApproved !== true) {
-        return res.status(403).json({
-          success: false,
-          status: "pending",
-          message:
-            "Your account is waiting for admin approval. Please wait.",
-        });
-      }
+    if (
+      user.role !== "admin" &&
+      user.rejected === true
+    ) {
+      return res.status(403).json({
+        status: "rejected",
+        message:
+          "Your account has been rejected by admin.",
+      });
     }
 
-    // ================= LOGIN SUCCESS =================
+    // ================= PENDING =================
 
-    // Generate token only for admin or approved user
-    const token = generateToken(
-      user._id,
-      user.role
-    );
+    if (
+      user.role !== "admin" &&
+      user.isApproved !== true
+    ) {
+      return res.status(403).json({
+        status: "pending",
+        message:
+          user.role === "candidate"
+            ? "Your candidate account is waiting for admin approval."
+            : "Your voter account is waiting for admin approval.",
+      });
+    }
 
-    return res.status(200).json({
-      success: true,
-      message: "Login successful",
+    // ================= TOKEN =================
+
+    const token =
+      generateToken(
+        user._id,
+        user.role
+      );
+
+    return res.json({
+      message:
+        "Login successful.",
+
       token,
 
       user: {
         id: user._id,
+        _id: user._id,
         name: user.name,
         email: user.email,
         role: user.role,
@@ -183,10 +216,22 @@ exports.login = async (req, res) => {
     });
 
   } catch (error) {
-    console.log("Login Error:", error);
+
+    console.log(
+      "Login Error:",
+      error
+    );
 
     return res.status(500).json({
-      message: error.message,
+      message:
+        "Login failed.",
+      error: error.message,
     });
   }
+};
+
+module.exports = {
+  register,
+  login,
+  generateToken,
 };

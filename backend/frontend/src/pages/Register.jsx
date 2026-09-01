@@ -1,15 +1,20 @@
 import { useState } from "react";
 
-const API = "http://localhost:5000/api";
+const API = import.meta.env.VITE_API_URL ||
+ "http://localhost:5000/api";
 
 function Register({ goLogin }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  const [role, setRole] = useState("user");
+
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [success, setSuccess] = useState(false);
+
+  // ================= REGISTER =================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,26 +34,35 @@ function Register({ goLogin }) {
           },
 
           body: JSON.stringify({
-            name,
-            email,
+            name: name.trim(),
+            email: email.trim().toLowerCase(),
             password,
+            role,
           }),
         }
       );
 
       const data = await response.json();
 
+      // ================= ERROR =================
+
       if (!response.ok) {
         setMessage(
-          data.message || "Registration failed"
+          data.message ||
+            "Registration failed."
         );
+
         return;
       }
+
+      // ================= SUCCESS =================
 
       setSuccess(true);
 
       setMessage(
-        "Account created successfully! ⏳ Your request has been sent to the admin. Please wait for approval before logging in."
+        role === "candidate"
+          ? "🗳️ Candidate registration submitted successfully! Please wait for admin approval."
+          : "👤 Voter registration submitted successfully! Please wait for admin approval."
       );
 
       // Clear form
@@ -56,11 +70,11 @@ function Register({ goLogin }) {
       setEmail("");
       setPassword("");
 
-      // Do not automatically login or redirect
-      // User must wait for admin approval
-
     } catch (error) {
-      console.log(error);
+      console.log(
+        "Registration Error:",
+        error
+      );
 
       setMessage(
         "Server se connection nahi ho raha."
@@ -76,6 +90,8 @@ function Register({ goLogin }) {
 
       <div className="auth-card">
 
+        {/* ================= LOGO ================= */}
+
         <div className="auth-logo">
           🗳️
         </div>
@@ -87,6 +103,8 @@ function Register({ goLogin }) {
         <p className="auth-subtitle">
           Join VoteHub and make your voice count
         </p>
+
+        {/* ================= MESSAGE ================= */}
 
         {message && (
           <div
@@ -105,7 +123,11 @@ function Register({ goLogin }) {
           </div>
         )}
 
+        {/* ================= FORM ================= */}
+
         <form onSubmit={handleSubmit}>
+
+          {/* ================= NAME ================= */}
 
           <label>
             Full Name
@@ -119,7 +141,10 @@ function Register({ goLogin }) {
               setName(e.target.value)
             }
             required
+            disabled={loading || success}
           />
+
+          {/* ================= EMAIL ================= */}
 
           <label>
             Email Address
@@ -133,7 +158,10 @@ function Register({ goLogin }) {
               setEmail(e.target.value)
             }
             required
+            disabled={loading || success}
           />
+
+          {/* ================= PASSWORD ================= */}
 
           <label>
             Password
@@ -148,20 +176,105 @@ function Register({ goLogin }) {
             }
             minLength={6}
             required
+            disabled={loading || success}
           />
+
+          {/* ================= ROLE ================= */}
+
+          <label>
+            Register As
+          </label>
+
+          <div className="role-options">
+
+            {/* ================= VOTER ================= */}
+
+            <button
+              type="button"
+              className={
+                role === "user"
+                  ? "role-option selected"
+                  : "role-option"
+              }
+              onClick={() =>
+                setRole("user")
+              }
+              disabled={loading || success}
+            >
+
+              <span className="role-icon">
+                👤
+              </span>
+
+              <span className="role-content">
+
+                <strong>
+                  Voter
+                </strong>
+
+                <small>
+                  Vote in the election
+                </small>
+
+              </span>
+
+            </button>
+
+            {/* ================= CANDIDATE ================= */}
+
+            <button
+              type="button"
+              className={
+                role === "candidate"
+                  ? "role-option selected"
+                  : "role-option"
+              }
+              onClick={() =>
+                setRole("candidate")
+              }
+              disabled={loading || success}
+            >
+
+              <span className="role-icon">
+                🗳️
+              </span>
+
+              <span className="role-content">
+
+                <strong>
+                  Candidate
+                </strong>
+
+                <small>
+                  Stand in the election
+                </small>
+
+              </span>
+
+            </button>
+
+          </div>
+
+          {/* ================= SUBMIT ================= */}
 
           <button
             type="submit"
-            disabled={loading || success}
+            disabled={
+              loading || success
+            }
           >
+
             {loading
               ? "Creating..."
               : success
               ? "Waiting for Admin Approval ⏳"
               : "Create Account →"}
+
           </button>
 
         </form>
+
+        {/* ================= LOGIN ================= */}
 
         <p className="auth-switch">
 

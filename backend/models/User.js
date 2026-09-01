@@ -12,8 +12,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-      lowercase: true,
       trim: true,
+      lowercase: true,
     },
 
     password: {
@@ -23,22 +23,23 @@ const userSchema = new mongoose.Schema(
 
     role: {
       type: String,
-      enum: ["user", "admin"],
+      enum: ["user", "candidate", "admin"],
       default: "user",
     },
 
-    // New user will wait for admin approval
+    // Admin approval
     isApproved: {
       type: Boolean,
       default: false,
     },
 
-    // Admin can reject the user
+    // Rejection status
     rejected: {
       type: Boolean,
       default: false,
     },
 
+    // Only useful for voters
     hasVoted: {
       type: Boolean,
       default: false,

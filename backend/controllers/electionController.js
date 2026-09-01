@@ -1,6 +1,36 @@
 const Election = require("../models/Election");
 const Candidate = require("../models/Candidate");
 const User = require("../models/User");
+const Vote = require("../models/Vote");
+
+// ================= GET ELECTION STATUS =================
+
+exports.getElectionStatus = async (req, res) => {
+  try {
+    let election = await Election.findOne();
+
+    // First time election record doesn't exist
+    if (!election) {
+      election = await Election.create({
+        status: "running",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      status: election.status,
+    });
+  } catch (error) {
+    console.log(
+      "Get Election Status Error:",
+      error
+    );
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
 
 // ================= END ELECTION =================
 
@@ -10,118 +40,36 @@ exports.endElection = async (req, res) => {
 
     if (!election) {
       election = await Election.create({
-        status: "running",
+        status: "ended",
       });
-    }
-
-    if (election.status === "ended") {
-      return res.status(400).json({
-        success: false,
-        message: "Election already ended.",
-      });
-    }
-
-    const candidates = await Candidate.find({
-      status: "approved",
-    }).sort({ votes: -1 });
-
-    if (candidates.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: "No approved candidates found.",
-      });
-    }
-
-    const winner = candidates[0];
-
-    election.status = "ended";
-    election.winner = winner._id;
-    election.endedAt = new Date();
-
-    await election.save();
-
-    res.status(200).json({
-      success: true,
-      message:
-        "Election ended and result declared successfully.",
-      winner: {
-        id: winner._id,
-        name: winner.name,
-        party: winner.party,
-        votes: winner.votes,
-      },
-    });
-  } catch (error) {
-    console.log("End Election Error:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "Election end nahi ho paya.",
-    });
-  }
-};
-
-
-// ================= GET ELECTION STATUS =================
-
-exports.getElectionStatus = async (req, res) => {
-  try {
-    const election = await Election.findOne()
-      .populate("winner", "name party votes");
-
-    if (!election) {
-      return res.status(200).json({
-        success: true,
-        status: "running",
-        winner: null,
-      });
+    } else {
+      election.status = "ended";
+      await election.save();
     }
 
     res.status(200).json({
       success: true,
+      message: "Election ended successfully.",
       status: election.status,
-      winner: election.winner,
-      endedAt: election.endedAt,
     });
   } catch (error) {
     console.log(
-      "Election Status Error:",
+      "End Election Error:",
       error
     );
 
     res.status(500).json({
-      success: false,
-      message:
-        "Election status load nahi ho raha.",
+      message: error.message,
     });
   }
 };
 
-
-// ================= RESET / START NEW ELECTION =================
+// ================= RESET / RESTART ELECTION =================
 
 exports.resetElection = async (req, res) => {
   try {
-    // Find current election
-    let election = await Election.findOne();
+    // ================= RESET CANDIDATE VOTES =================
 
-    // If election document does not exist
-    if (!election) {
-      election = await Election.create({
-        status: "running",
-        winner: null,
-        endedAt: null,
-      });
-    } else {
-      // Start new election
-      election.status = "running";
-      election.winner = null;
-      election.endedAt = null;
-
-      await election.save();
-    }
-
-    // Reset all candidate votes
     await Candidate.updateMany(
       {},
       {
@@ -131,10 +79,12 @@ exports.resetElection = async (req, res) => {
       }
     );
 
-    // Allow all normal users to vote again
-    // Admin accounts are not affected
+    // ================= RESET USER VOTING STATUS =================
+
     await User.updateMany(
-      { role: { $ne: "admin" } },
+      {
+        role: "user",
+      },
       {
         $set: {
           hasVoted: false,
@@ -142,10 +92,28 @@ exports.resetElection = async (req, res) => {
       }
     );
 
+    // ================= DELETE OLD VOTES =================
+
+    await Vote.deleteMany({});
+
+    // ================= START ELECTION =================
+
+    let election = await Election.findOne();
+
+    if (!election) {
+      election = await Election.create({
+        status: "running",
+      });
+    } else {
+      election.status = "running";
+      await election.save();
+    }
+
     res.status(200).json({
       success: true,
       message:
-        "New election started successfully. Users and candidates can vote again.",
+        "New election started successfully. Previous votes have been reset.",
+      status: election.status,
     });
   } catch (error) {
     console.log(
@@ -154,9 +122,7 @@ exports.resetElection = async (req, res) => {
     );
 
     res.status(500).json({
-      success: false,
-      message:
-        "Election reset nahi ho paya.",
+      message: error.message,
     });
   }
 };

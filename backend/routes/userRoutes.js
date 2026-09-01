@@ -12,7 +12,9 @@ const admin = require("../middleware/adminMiddleware");
 
 const router = express.Router();
 
-// Only admin can see users
+// ================= GET ALL USERS =================
+// Admin only
+
 router.get(
   "/",
   protect,
@@ -20,7 +22,8 @@ router.get(
   getAllUsers
 );
 
-// Only admin can approve user
+// ================= APPROVE USER =================
+
 router.patch(
   "/:id/approve",
   protect,
@@ -28,7 +31,8 @@ router.patch(
   approveUser
 );
 
-// Only admin can reject user
+// ================= REJECT USER =================
+
 router.patch(
   "/:id/reject",
   protect,
@@ -36,7 +40,8 @@ router.patch(
   rejectUser
 );
 
-// Only admin can permanently delete user
+// ================= DELETE USER =================
+
 router.delete(
   "/:id",
   protect,

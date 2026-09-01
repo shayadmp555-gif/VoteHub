@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
-const API = "http://localhost:5000/api";
+const API = import.meta.env.VITE_API_URL ||
+ "http://localhost:5000/api";
 
 function Dashboard({ user, logout, goResults }) {
   const [candidates, setCandidates] = useState([]);
@@ -10,9 +11,27 @@ function Dashboard({ user, logout, goResults }) {
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  const token = localStorage.getItem("token") || "";
+  const [showCandidateForm, setShowCandidateForm] =
+    useState(false);
 
-  // ================= FETCH CANDIDATES =================
+  const [candidateName, setCandidateName] =
+    useState("");
+
+  const [candidateParty, setCandidateParty] =
+    useState("");
+
+  const [candidatePhoto, setCandidatePhoto] =
+    useState("");
+
+  const [candidateLoading, setCandidateLoading] =
+    useState(false);
+
+  const token =
+    localStorage.getItem("token") || "";
+
+  // =====================================================
+  // FETCH CANDIDATES
+  // =====================================================
 
   const fetchCandidates = async () => {
     try {
@@ -27,27 +46,26 @@ function Dashboard({ user, logout, goResults }) {
       if (!response.ok) {
         setMessage(
           data.message ||
-            "Candidates load failed"
+            "Candidates load failed."
         );
         return;
       }
 
       setCandidates(data);
-
     } catch (error) {
       console.log(error);
 
       setMessage(
         "Server se connection nahi ho raha."
       );
-
     } finally {
       setLoading(false);
     }
   };
 
-
-  // ================= FETCH ELECTION STATUS =================
+  // =====================================================
+  // FETCH ELECTION STATUS
+  // =====================================================
 
   const fetchElectionStatus = async () => {
     try {
@@ -62,7 +80,6 @@ function Dashboard({ user, logout, goResults }) {
           data.status || "running"
         );
       }
-
     } catch (error) {
       console.log(
         "Election status error:",
@@ -71,35 +88,116 @@ function Dashboard({ user, logout, goResults }) {
     }
   };
 
-
-  // ================= INITIAL LOAD =================
+  // =====================================================
+  // INITIAL LOAD
+  // =====================================================
 
   useEffect(() => {
     fetchCandidates();
     fetchElectionStatus();
   }, []);
 
+  // =====================================================
+  // REGISTER CANDIDATE
+  // =====================================================
 
-  // ================= VOTE =================
-
-  const vote = async (candidateId) => {
+  const submitCandidate = async (e) => {
+    e.preventDefault();
 
     if (!token) {
+      setMessage("Please login first.");
+      return;
+    }
+
+    if (!candidateName.trim()) {
       setMessage(
-        "Please login first."
+        "Candidate name is required."
       );
       return;
     }
 
+    if (!candidateParty.trim()) {
+      setMessage(
+        "Party name is required."
+      );
+      return;
+    }
 
-    // Election ended check
+    try {
+      setCandidateLoading(true);
+      setMessage("");
+
+      const response = await fetch(
+        `${API}/candidates`,
+        {
+          method: "POST",
+
+          headers: {
+            "Content-Type":
+              "application/json",
+
+            Authorization:
+              `Bearer ${token}`,
+          },
+
+          body: JSON.stringify({
+            name: candidateName.trim(),
+            party: candidateParty.trim(),
+            photo: candidatePhoto.trim(),
+          }),
+        }
+      );
+
+      const data =
+        await response.json();
+
+      if (!response.ok) {
+        setMessage(
+          data.message ||
+            "Candidate registration failed."
+        );
+        return;
+      }
+
+      setMessage(
+        "✅ Candidate application submitted. Waiting for Admin approval."
+      );
+
+      setCandidateName("");
+      setCandidateParty("");
+      setCandidatePhoto("");
+
+      setShowCandidateForm(false);
+    } catch (error) {
+      console.log(
+        "Candidate registration error:",
+        error
+      );
+
+      setMessage(
+        "Server se connection nahi ho raha."
+      );
+    } finally {
+      setCandidateLoading(false);
+    }
+  };
+
+  // =====================================================
+  // CAST VOTE
+  // =====================================================
+
+  const vote = async (candidateId) => {
+    if (!token) {
+      setMessage("Please login first.");
+      return;
+    }
+
     if (electionStatus === "ended") {
       setMessage(
         "🏁 Election has ended. Voting is closed."
       );
       return;
     }
-
 
     if (user?.hasVoted) {
       setMessage(
@@ -108,18 +206,14 @@ function Dashboard({ user, logout, goResults }) {
       return;
     }
 
-
     const confirmVote =
       window.confirm(
         "Are you sure you want to vote for this candidate?"
       );
 
-
     if (!confirmVote) return;
 
-
     try {
-
       const response = await fetch(
         `${API}/votes`,
         {
@@ -139,84 +233,78 @@ function Dashboard({ user, logout, goResults }) {
         }
       );
 
-
       const data =
         await response.json();
 
-
       if (!response.ok) {
-
         setMessage(
           data.message ||
-            "Voting failed"
+            "Voting failed."
         );
-
         return;
       }
-
 
       const updatedUser = {
         ...user,
         hasVoted: true,
       };
 
-
       localStorage.setItem(
         "user",
         JSON.stringify(updatedUser)
       );
 
-
       setMessage(
-        "✅ Vote submitted successfully!"
+        "✅ Your vote has been submitted successfully!"
       );
-
 
       setCandidates((old) =>
-        old.map(
-          (candidate) =>
-            candidate._id ===
-            candidateId
-              ? {
-                  ...candidate,
-
-                  votes:
-                    Number(
-                      candidate.votes || 0
-                    ) + 1,
-                }
-              : candidate
+        old.map((candidate) =>
+          candidate._id === candidateId
+            ? {
+                ...candidate,
+                votes:
+                  Number(
+                    candidate.votes || 0
+                  ) + 1,
+              }
+            : candidate
         )
       );
-
-
-      setTimeout(() => {
-        window.location.reload();
-      }, 800);
-
-
     } catch (error) {
-
       console.log(error);
 
       setMessage(
-        "Voting failed."
+        "Voting failed. Please try again."
       );
     }
   };
 
+  // =====================================================
+  // HELPERS
+  // =====================================================
+
+  const getInitial = (name) => {
+    return (
+      name?.charAt(0)?.toUpperCase() || "?"
+    );
+  };
+
+  const isElectionEnded =
+    electionStatus === "ended";
 
   return (
     <div className="dashboard">
 
-      {/* ================= NAVBAR ================= */}
+      {/* =================================================
+          NAVBAR
+      ================================================= */}
 
       <nav className="navbar">
 
         <div className="nav-brand">
           🗳️ Vote<span>Hub</span>
         </div>
-
 
         <div className="nav-right">
 
@@ -229,29 +317,33 @@ function Dashboard({ user, logout, goResults }) {
             🏠 Home
           </button>
 
-
           <button onClick={goResults}>
             📊 Results
           </button>
 
+          <button
+            onClick={() => {
+              setShowCandidateForm(
+                !showCandidateForm
+              );
+
+              setMessage("");
+            }}
+          >
+            📝 Candidate
+          </button>
 
           <div className="user-info">
 
             <div className="avatar">
-
-              {user?.name
-                ?.charAt(0)
-                ?.toUpperCase()}
-
+              {getInitial(user?.name)}
             </div>
-
 
             <span>
               {user?.name}
             </span>
 
           </div>
-
 
           <button
             className="logout-btn"
@@ -264,151 +356,422 @@ function Dashboard({ user, logout, goResults }) {
 
       </nav>
 
-
-      {/* ================= MAIN ================= */}
+      {/* =================================================
+          MAIN
+      ================================================= */}
 
       <main className="dashboard-content">
 
-        <div className="welcome">
+        {/* =================================================
+            HERO
+        ================================================= */}
 
-          <div>
+        <section className="constitution-hero">
 
-            <p className="small-title">
-              VOTING PORTAL
+          <div className="hero-emblem">
+            ⚖️
+          </div>
+
+          <div className="hero-content">
+
+            <p className="hero-label">
+              🇮🇳 DEMOCRATIC INDIA
             </p>
 
-
             <h1>
-              Hello, {user?.name} 👋
+              Your Vote.
+              <br />
+              Your Voice.
+              <br />
+              Your Democracy.
             </h1>
 
-
             <p>
-
-              {electionStatus === "ended"
-                ? "The election has ended. You can view the final results."
-                : "Choose your candidate and make your vote count."}
-
+              Welcome to VoteHub, a digital
+              voting platform inspired by the
+              democratic values of the
+              Constitution of India.
             </p>
 
           </div>
 
+          <div className="hero-status">
 
-          <div className="vote-status">
+            <div className="status-icon">
+              {isElectionEnded
+                ? "🏁"
+                : "🗳️"}
+            </div>
 
             <span>
-              {electionStatus === "ended"
-                ? "🏁"
-                : user?.hasVoted
-                ? "✓"
-                : "!"}
+              ELECTION 
             </span>
 
+           
 
-            <div>
+          </div>
 
-              <small>
-                Voting Status
-              </small>
+        </section>
 
+       
 
-              <strong>
+        {/* =================================================
+            MESSAGE
+        ================================================= */}
 
-                {electionStatus ===
-                "ended"
-                  ? "Election Ended"
-                  : user?.hasVoted
-                  ? "Vote Submitted"
-                  : "Not Voted Yet"}
+        {message && (
+          <div className="message">
 
-              </strong>
+            <span>
+              {message}
+            </span>
+
+            <button
+              onClick={() =>
+                setMessage("")
+              }
+            >
+              ×
+            </button>
+
+          </div>
+        )}
+
+        {/* =================================================
+            PREAMBLE
+        ================================================= */}
+
+        <section className="preamble-card">
+
+          <div className="preamble-icon">
+            📜
+          </div>
+
+          <div className="preamble-content">
+
+            <p className="section-label">
+              THE CONSTITUTION OF INDIA
+            </p>
+
+            <h2>
+              We, the People of India
+            </h2>
+
+            <p className="preamble-text">
+              "We, the people of India, having
+              solemnly resolved to constitute
+              India into a Sovereign Socialist
+              Secular Democratic Republic and
+              to secure to all its citizens
+              Justice, Liberty and Equality..."
+            </p>
+
+            <div className="preamble-values">
+
+              <span>⚖️ Justice</span>
+              <span>🕊️ Liberty</span>
+              <span>🤝 Equality</span>
+              <span>🇮🇳 Fraternity</span>
 
             </div>
 
           </div>
 
-        </div>
+        </section>
 
+        {/* =================================================
+            YOUR RIGHT TO VOTE
+        ================================================= */}
 
-        {/* ================= MESSAGE ================= */}
+        <section className="rights-section">
 
-        {message && (
+          <div className="rights-heading">
 
-          <div className="message">
-            {message}
+            <div>
+
+              <p className="section-label">
+                DEMOCRATIC PARTICIPATION
+              </p>
+
+              <h2>
+                Your Right to Vote
+              </h2>
+
+            </div>
+
+            <span className="constitution-mark">
+              🇮🇳
+            </span>
+
           </div>
 
+          <div className="rights-grid">
+
+            <div className="right-card">
+
+              <div className="right-icon">
+                🗳️
+              </div>
+
+              <h3>
+                Make Your Voice Heard
+              </h3>
+
+              <p>
+                Every vote is an important
+                part of the democratic process.
+              </p>
+
+            </div>
+
+            <div className="right-card">
+
+              <div className="right-icon">
+                ⚖️
+              </div>
+
+              <h3>
+                One Person, One Vote
+              </h3>
+
+              <p>
+                Your vote represents your
+                choice in the election.
+              </p>
+
+            </div>
+
+            <div className="right-card">
+
+              <div className="right-icon">
+                🔐
+              </div>
+
+              <h3>
+                Vote Responsibly
+              </h3>
+
+              <p>
+                Choose your candidate carefully
+                and vote responsibly.
+              </p>
+
+            </div>
+
+          </div>
+
+        </section>
+
+        {/* =================================================
+            CANDIDATE REGISTRATION
+        ================================================= */}
+
+        {showCandidateForm && (
+
+          <section className="candidate-registration">
+
+            <div className="registration-header">
+
+              <div>
+                <p className="section-label">
+                  CANDIDATE APPLICATION
+                </p>
+
+                <h2>
+                  Register as a Candidate
+                </h2>
+
+                <p>
+                  Submit your election profile
+                  for Admin approval.
+                </p>
+              </div>
+
+              <div className="registration-icon">
+                🏛️
+              </div>
+
+            </div>
+
+            <form
+              className="candidate-form"
+              onSubmit={submitCandidate}
+            >
+
+              <div className="form-group">
+
+                <label>
+                  Candidate Name
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Enter candidate name"
+                  value={candidateName}
+                  onChange={(e) =>
+                    setCandidateName(
+                      e.target.value
+                    )
+                  }
+                  required
+                />
+
+              </div>
+
+              <div className="form-group">
+
+                <label>
+                  Party Name
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Enter party name"
+                  value={candidateParty}
+                  onChange={(e) =>
+                    setCandidateParty(
+                      e.target.value
+                    )
+                  }
+                  required
+                />
+
+              </div>
+
+              <div className="form-group">
+
+                <label>
+                  Candidate Photo URL
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Optional photo URL"
+                  value={candidatePhoto}
+                  onChange={(e) =>
+                    setCandidatePhoto(
+                      e.target.value
+                    )
+                  }
+                />
+
+              </div>
+
+              <div className="form-buttons">
+
+                <button
+                  type="submit"
+                  className="primary-btn"
+                  disabled={
+                    candidateLoading
+                  }
+                >
+                  {candidateLoading
+                    ? "Submitting..."
+                    : "Submit Application →"}
+                </button>
+
+                <button
+                  type="button"
+                  className="secondary-btn"
+                  onClick={() => {
+                    setShowCandidateForm(
+                      false
+                    );
+                    setMessage("");
+                  }}
+                >
+                  Cancel
+                </button>
+
+              </div>
+
+            </form>
+
+          </section>
         )}
 
+        {/* =================================================
+            VOTING CLOSED
+        ================================================= */}
 
-        {/* ================= ELECTION ENDED ================= */}
+        {isElectionEnded && (
 
-        {electionStatus ===
-          "ended" && (
+          <section className="closed-election">
 
-          <div className="message">
+            <div className="closed-icon">
+              🏁
+            </div>
 
-            🏁 <strong>
-              Election has ended.
-            </strong>
+            <div>
 
-            {" "}
-            Voting is now closed.
+              <h2>
+                Election Has Ended
+              </h2>
+
+              <p>
+                Voting is now closed. You can
+                view the final election results.
+              </p>
+
+            </div>
 
             <button
               onClick={goResults}
-              style={{
-                marginLeft: "10px",
-              }}
+              className="primary-btn"
             >
-              📊 View Final Results
+              View Final Results →
             </button>
 
-          </div>
-
+          </section>
         )}
 
+        {/* =================================================
+            CANDIDATES
+        ================================================= */}
 
-        {/* ================= CANDIDATES ================= */}
-
-        <section>
+        <section className="candidates-section">
 
           <div className="section-title">
 
             <div>
 
+              <p className="section-label">
+                ELECTION
+              </p>
+
               <h2>
-                Choose Your Candidate
+                Meet the Candidates
               </h2>
 
-
               <p>
-
-                {electionStatus ===
-                "ended"
+                {isElectionEnded
                   ? "Voting is closed."
-                  : "Only approved candidates are shown."}
-
+                  : "Review the approved candidates and make your choice."}
               </p>
 
             </div>
 
-
             <span className="candidate-count">
-
-              {candidates.length}
-              {" "}
-              Candidates
-
+              {candidates.length} Candidates
             </span>
 
           </div>
 
-
           {loading ? (
 
             <div className="empty">
-              Loading candidates...
+              <div className="loading-icon">
+                🗳️
+              </div>
+
+              <h3>
+                Loading Candidates...
+              </h3>
+
+              <p>
+                Please wait.
+              </p>
             </div>
 
           ) : (
@@ -418,128 +781,179 @@ function Dashboard({ user, logout, goResults }) {
               {candidates.map(
                 (candidate, index) => (
 
-                <div
-                  className="candidate-card"
-                  key={candidate._id}
-                >
+                  <div
+                    className="candidate-card"
+                    key={candidate._id}
+                  >
 
-                  <div className="candidate-top">
+                    <div className="candidate-top">
 
-                    <div className="candidate-avatar">
+                      {candidate.photo ? (
 
-                      {candidate.name
-                        ?.charAt(0)
-                        ?.toUpperCase()}
+                        <img
+                          src={candidate.photo}
+                          alt={
+                            candidate.name
+                          }
+                          className="candidate-photo"
+                        />
 
-                    </div>
+                      ) : (
 
+                        <div className="candidate-avatar">
+                          {getInitial(
+                            candidate.name
+                          )}
+                        </div>
 
-                    <div className="candidate-number">
-                      #{index + 1}
-                    </div>
+                      )}
 
-                  </div>
-
-
-                  <h3>
-                    {candidate.name}
-                  </h3>
-
-
-                  <p className="party">
-                    {candidate.party}
-                  </p>
-
-
-                  <div className="card-bottom">
-
-                    <div className="vote-count">
-
-                      <strong>
-                        {candidate.votes ||
-                          0}
-                      </strong>
-
-
-                      <span>
-                        Votes
+                      <span className="candidate-number">
+                        #{index + 1}
                       </span>
 
                     </div>
 
+                    <div className="candidate-details">
 
-                    <button
-                      className="vote-btn"
+                      <span className="approved-badge">
+                        ✓ APPROVED
+                      </span>
 
-                      disabled={
-                        user?.hasVoted ||
-                        electionStatus ===
-                          "ended"
-                      }
+                      <h3>
+                        {candidate.name}
+                      </h3>
 
-                      onClick={() =>
-                        vote(
-                          candidate._id
-                        )
-                      }
-                    >
+                      <p className="party">
+                        🏛️ {candidate.party}
+                      </p>
 
-                      {electionStatus ===
-                      "ended"
-                        ? "Election Ended 🏁"
-                        : user?.hasVoted
-                        ? "Voted ✓"
-                        : "Vote Now →"}
+                    </div>
 
-                    </button>
+                    <div className="candidate-bottom">
+
+                      <div className="vote-count">
+
+                        <strong>
+                          {candidate.votes || 0}
+                        </strong>
+
+                        <span>
+                          Votes
+                        </span>
+
+                      </div>
+
+                      <button
+                        className="vote-btn"
+                        disabled={
+                          user?.hasVoted ||
+                          isElectionEnded
+                        }
+                        onClick={() =>
+                          vote(
+                            candidate._id
+                          )
+                        }
+                      >
+                        {isElectionEnded
+                          ? "Election Ended"
+                          : user?.hasVoted
+                          ? "Vote Submitted ✓"
+                          : "Vote Now →"}
+                      </button>
+
+                    </div>
 
                   </div>
-
-                </div>
-
-              ))}
+                )
+              )}
 
             </div>
-
           )}
-
-
-          {/* ================= EMPTY ================= */}
 
           {!loading &&
-            candidates.length ===
-              0 && (
+            candidates.length === 0 && (
 
-            <div className="empty">
+              <div className="empty">
 
-              <div>
-                🗳️
+                <div className="empty-icon">
+                  🏛️
+                </div>
+
+                <h3>
+                  No Approved Candidates
+                </h3>
+
+                <p>
+                  Candidates will appear here
+                  after Admin approval.
+                </p>
+
               </div>
+            )}
 
+        </section>{/* =================================================
+            DEMOCRACY MESSAGE
+        ================================================= */}
 
-              <h3>
-                No approved candidates
-              </h3>
+        <section className="democracy-banner">
 
+          <div className="democracy-symbol">
+            🇮🇳
+          </div>
 
-              <p>
-                Candidates will appear here
-                after admin approval.
-              </p>
+          <div>
 
-            </div>
+            <p className="section-label">
+              DEMOCRACY IN ACTION
+            </p>
 
-          )}
+            <h2>
+              Every Vote Matters
+            </h2>
+
+            <p>
+              Participate responsibly and
+              make your democratic choice.
+            </p>
+
+          </div>
+
+          <div className="democracy-quote">
+            "We, the People"
+          </div>
 
         </section>
 
       </main>
 
+      {/* =================================================
+          FOOTER
+      ================================================= */}
 
-      {/* ================= FOOTER ================= */}
+      <footer className="vote-footer">
 
-      <footer>
-        © 2026 VoteHub • Secure Digital Voting
+        <div className="footer-emblem">
+          🇮🇳
+        </div>
+
+        <strong>
+          VoteHub
+        </strong>
+
+        <p>
+          Secure Digital Voting •
+          Inspired by the Democratic
+          Values of India
+        </p>
+
+        <small>
+          © 2026 VoteHub •
+          Democracy • Equality •
+          Participation
+        </small>
+
       </footer>
 
     </div>

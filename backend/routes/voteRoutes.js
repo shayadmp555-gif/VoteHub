@@ -1,18 +1,28 @@
 const express = require("express");
-const router = express.Router();
 
 const {
   castVote,
-  getResults
+  getResults,
 } = require("../controllers/voteController");
 
 const protect = require("../middleware/authMiddleware");
-const adminOnly = require("../middleware/adminMiddleware");
 
-// User voting
-router.post("/", protect, castVote);
+const router = express.Router();
 
-// Results ONLY for Admin
-router.get("/results", protect, adminOnly, getResults);
+// ================= CAST VOTE =================
+
+router.post(
+  "/",
+  protect,
+  castVote
+);
+
+// ================= RESULTS =================
+
+router.get(
+  "/results",
+  protect,
+  getResults
+);
 
 module.exports = router;

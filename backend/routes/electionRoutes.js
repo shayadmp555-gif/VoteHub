@@ -1,19 +1,28 @@
 const express = require("express");
 
-const router = express.Router();
-
 const {
+  getElectionStatus,
   endElection,
   resetElection,
-  getElectionStatus,
 } = require("../controllers/electionController");
 
 const protect = require("../middleware/authMiddleware");
 const admin = require("../middleware/adminMiddleware");
 
-// ================= ELECTION ROUTES =================
+const router = express.Router();
 
-// Admin can end election
+// ================= STATUS =================
+// Voter can check election status
+
+router.get(
+  "/status",
+  protect,
+  getElectionStatus
+);
+
+// ================= END ELECTION =================
+// Admin only
+
 router.patch(
   "/end",
   protect,
@@ -21,18 +30,14 @@ router.patch(
   endElection
 );
 
-// Admin can start a new election
+// ================= RESTART ELECTION =================
+// Admin only
+
 router.patch(
   "/reset",
   protect,
   admin,
   resetElection
-);
-
-// Anyone can check election status
-router.get(
-  "/status",
-  getElectionStatus
 );
 
 module.exports = router;

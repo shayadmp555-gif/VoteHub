@@ -1,3 +1,5 @@
+
+
 const express = require("express");
 
 const {
@@ -15,18 +17,70 @@ const admin = require("../middleware/adminMiddleware");
 
 const router = express.Router();
 
-router.get("/", getCandidates);
+// ================= GET APPROVED CANDIDATES =================
 
-router.get("/all", protect, admin, getAllCandidates);
+router.get(
+  "/",
+  getCandidates
+);
 
-router.post("/", protect, admin, addCandidate);
+// ================= GET ALL CANDIDATES =================
+// Admin only
 
-router.patch("/:id/approve", protect, admin, approveCandidate);
+router.get(
+  "/all",
+  protect,
+  admin,
+  getAllCandidates
+);
 
-router.patch("/:id/reject", protect, admin, rejectCandidate);
+// ================= SUBMIT ELECTION PROFILE =================
+// Approved candidate can submit own profile
 
-router.put("/:id", protect, admin, updateCandidate);
+router.post(
+  "/",
+  protect,
+  addCandidate
+);
 
-router.delete("/:id", protect, admin, deleteCandidate);
+// ================= APPROVE CANDIDATE =================
+// Admin only
+
+router.patch(
+  "/:id/approve",
+  protect,
+  admin,
+  approveCandidate
+);
+
+// ================= REJECT CANDIDATE =================
+// Admin only
+
+router.patch(
+  "/:id/reject",
+  protect,
+  admin,
+  rejectCandidate
+);
+
+// ================= UPDATE CANDIDATE =================
+// Admin only
+
+router.put(
+  "/:id",
+  protect,
+  admin,
+  updateCandidate
+);
+
+// ================= DELETE CANDIDATE =================
+// Admin only
+
+router.delete(
+  "/:id",
+  protect,
+  admin,
+  deleteCandidate
+);
 
 module.exports = router;
