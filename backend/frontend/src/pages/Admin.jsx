@@ -2,8 +2,22 @@ import { useEffect, useMemo, useState } from "react";
 import "../Admin.css";
 import axios from "axios";
 
-const API = import.meta.env.VITE_API_URL ||
- "https://votehub-8gj9.onrender.com";
+// =====================================================
+// API CONFIG
+// =====================================================
+
+const SERVER_URL =
+  import.meta.env.VITE_API_URL ||
+  "https://votehub-8gj9.onrender.com";
+
+// Automatically add /api if it is not already present
+const API = SERVER_URL.replace(/\/$/, "").endsWith("/api")
+  ? SERVER_URL.replace(/\/$/, "")
+  : `${SERVER_URL.replace(/\/$/, "")}/api`;
+
+// =====================================================
+// ADMIN COMPONENT
+// =====================================================
 
 function Admin({ user, logout }) {
   const [candidates, setCandidates] = useState([]);
@@ -17,60 +31,98 @@ function Admin({ user, logout }) {
 
   const [message, setMessage] = useState("");
 
-  const token = localStorage.getItem("token") || "";
+  // =====================================================
+  // AUTH CONFIG
+  // =====================================================
 
-  const authConfig = {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+  const getAuthConfig = () => {
+    const token = localStorage.getItem("token") || "";
+
+    return {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+    };
   };
 
-  // ================= FETCH ALL CANDIDATES =================
+  // =====================================================
+  // FETCH ALL CANDIDATES
+  // =====================================================
 
   const fetchCandidates = async () => {
     try {
       const res = await axios.get(
         `${API}/candidates/all`,
-        authConfig
+        getAuthConfig()
       );
 
-      setCandidates(
-        res.data.candidates ||
-          res.data ||
-          []
-      );
+      console.log("CANDIDATES API RESPONSE:", res.data);
+
+      let data = [];
+
+      if (Array.isArray(res.data)) {
+        data = res.data;
+      } else if (Array.isArray(res.data?.candidates)) {
+        data = res.data.candidates;
+      }
+
+      setCandidates(data);
+
+      console.log("candidates =", data);
+
+      return data;
     } catch (error) {
-      console.log("Candidates Error:", error);
+      console.error(
+        "Candidates Error:",
+        error.response?.status,
+        error.response?.data || error.message
+      );
+
+      setCandidates([]);
 
       setMessage(
         error.response?.data?.message ||
           "Candidates load nahi ho rahe."
       );
+
+      return [];
     }
   };
 
-  // ================= FETCH ALL USERS =================
+  // =====================================================
+  // FETCH ALL USERS
+  // =====================================================
 
   const fetchUsers = async () => {
     try {
       setUsersLoading(true);
-      setMessage("");
 
       const res = await axios.get(
         `${API}/users`,
-        authConfig
+        getAuthConfig()
       );
 
-      const allUsers = Array.isArray(res.data)
-        ? res.data
-        : res.data.users || [];
+      console.log("USERS API RESPONSE:", res.data);
 
-      setUsers(allUsers);
+      let data = [];
+
+      if (Array.isArray(res.data)) {
+        data = res.data;
+      } else if (Array.isArray(res.data?.users)) {
+        data = res.data.users;
+      }
+
+      setUsers(data);
+
+      console.log("users =", data);
+
+      return data;
     } catch (error) {
-      console.log(
+      console.error(
         "USERS API ERROR:",
         error.response?.status,
-        error.response?.data
+        error.response?.data || error.message
       );
 
       setUsers([]);
@@ -79,12 +131,16 @@ function Admin({ user, logout }) {
         error.response?.data?.message ||
           "Users load nahi ho rahe."
       );
+
+      return [];
     } finally {
       setUsersLoading(false);
     }
   };
 
-  // ================= LOAD DATA =================
+  // =====================================================
+  // LOAD DATA
+  // =====================================================
 
   useEffect(() => {
     const loadData = async () => {
@@ -101,8 +157,10 @@ function Admin({ user, logout }) {
     loadData();
   }, []);
 
-  // ================= USER FILTERS =================
-console.log("users =", users);
+  // =====================================================
+  // USER FILTERS
+  // =====================================================
+
   const pendingUsers = users.filter(
     (item) =>
       item.role === "user" &&
@@ -123,15 +181,16 @@ console.log("users =", users);
       item.isApproved === true
   );
 
-  const approvedCandidateUsers =
-    users.filter(
-      (item) =>
-        item.role === "candidate" &&
-        item.isApproved === true
-    );
+  const approvedCandidateUsers = users.filter(
+    (item) =>
+      item.role === "candidate" &&
+      item.isApproved === true
+  );
 
-  // ================= CANDIDATE FILTERS =================
-console.log("candidates =", candidates);
+  // =====================================================
+  // CANDIDATE FILTERS
+  // =====================================================
+
   const pendingCandidates = candidates.filter(
     (item) => item.status === "pending"
   );
@@ -144,7 +203,9 @@ console.log("candidates =", candidates);
     (item) => item.status === "rejected"
   );
 
-  // ================= TOTAL VOTES =================
+  // =====================================================
+  // TOTAL VOTES
+  // =====================================================
 
   const totalVotes = candidates.reduce(
     (total, candidate) =>
@@ -152,25 +213,28 @@ console.log("candidates =", candidates);
     0
   );
 
-  // ================= APPROVE USER =================
+  // =====================================================
+  // APPROVE USER
+  // =====================================================
 
   const approveUser = async (id) => {
     try {
-      await axios.patch(
+      const res = await axios.patch(
         `${API}/users/${id}/approve`,
         {},
-        authConfig
+        getAuthConfig()
       );
 
       setMessage(
-        "Voter approved successfully ✅"
+        res.data?.message ||
+          "Voter approved successfully ✅"
       );
 
       await fetchUsers();
     } catch (error) {
-      console.log(
+      console.error(
         "Approve User Error:",
-        error
+        error.response?.data || error.message
       );
 
       setMessage(
@@ -180,25 +244,29 @@ console.log("candidates =", candidates);
     }
   };
 
-  // ================= REJECT USER =================
+  // =====================================================
+  // REJECT USER
+  // =====================================================
 
   const rejectUser = async (id) => {
     try {
-      await axios.patch(
+      const res = await axios.patch(
         `${API}/users/${id}/reject`,
         {},
-        authConfig
+        getAuthConfig()
       );
 
       setMessage(
-        "Voter rejected successfully ❌"
+        res.data?.message ||
+          "Voter rejected successfully ❌"
       );
 
       await fetchUsers();
+      await fetchCandidates();
     } catch (error) {
-      console.log(
+      console.error(
         "Reject User Error:",
-        error
+        error.response?.data || error.message
       );
 
       setMessage(
@@ -208,22 +276,50 @@ console.log("candidates =", candidates);
     }
   };
 
-  // ================= APPROVE CANDIDATE ACCOUNT =================
+  // =====================================================
+  // APPROVE CANDIDATE ACCOUNT
+  // =====================================================
 
   const approveCandidateUser = async (id) => {
     try {
-      await axios.patch(
+      // -----------------------------------------------
+      // STEP 1: APPROVE USER ACCOUNT
+      // -----------------------------------------------
+
+      const userResponse = await axios.patch(
         `${API}/users/${id}/approve`,
         {},
-        authConfig
+        getAuthConfig()
       );
 
+      // -----------------------------------------------
+      // STEP 2: REFRESH CANDIDATES
+      // Candidate profile is created by backend
+      // after user approval.
+      // -----------------------------------------------
+
+      const updatedCandidates =
+        await fetchCandidates();
+
+      // -----------------------------------------------
+      // STEP 3: FIND CREATED CANDIDATE PROFILE
+      // -----------------------------------------------
+
       const candidateProfile =
-        candidates.find(
-          (candidate) =>
-            candidate.userId?._id === id ||
-            candidate.userId === id
-        );
+        updatedCandidates.find((candidate) => {
+          const candidateUserId =
+            candidate.userId?._id ||
+            candidate.userId;
+
+          return (
+            String(candidateUserId) ===
+            String(id)
+          );
+        });
+
+      // -----------------------------------------------
+      // STEP 4: APPROVE CANDIDATE PROFILE
+      // -----------------------------------------------
 
       if (
         candidateProfile &&
@@ -232,7 +328,7 @@ console.log("candidates =", candidates);
         await axios.patch(
           `${API}/candidates/${candidateProfile._id}/approve`,
           {},
-          authConfig
+          getAuthConfig()
         );
       }
 
@@ -240,12 +336,13 @@ console.log("candidates =", candidates);
       await fetchCandidates();
 
       setMessage(
-        "Candidate approved successfully ✅"
+        userResponse.data?.message ||
+          "Candidate approved successfully ✅"
       );
     } catch (error) {
-      console.log(
+      console.error(
         "Approve Candidate Error:",
-        error
+        error.response?.data || error.message
       );
 
       setMessage(
@@ -255,25 +352,29 @@ console.log("candidates =", candidates);
     }
   };
 
-  // ================= REJECT CANDIDATE ACCOUNT =================
+  // =====================================================
+  // REJECT CANDIDATE ACCOUNT
+  // =====================================================
 
   const rejectCandidateUser = async (id) => {
     try {
-      await axios.patch(
+      const res = await axios.patch(
         `${API}/users/${id}/reject`,
         {},
-        authConfig
-      );
-
-      setMessage(
-        "Candidate account rejected successfully ❌"
+        getAuthConfig()
       );
 
       await fetchUsers();
+      await fetchCandidates();
+
+      setMessage(
+        res.data?.message ||
+          "Candidate account rejected successfully ❌"
+      );
     } catch (error) {
-      console.log(
+      console.error(
         "Reject Candidate Error:",
-        error
+        error.response?.data || error.message
       );
 
       setMessage(
@@ -283,14 +384,16 @@ console.log("candidates =", candidates);
     }
   };
 
-  // ================= APPROVE CANDIDATE =================
+  // =====================================================
+  // APPROVE CANDIDATE
+  // =====================================================
 
   const approveCandidate = async (id) => {
     try {
       const res = await axios.patch(
         `${API}/candidates/${id}/approve`,
         {},
-        authConfig
+        getAuthConfig()
       );
 
       setCandidates((old) =>
@@ -298,7 +401,7 @@ console.log("candidates =", candidates);
           item._id === id
             ? {
                 ...item,
-                ...(res.data.candidate || {}),
+                ...(res.data?.candidate || {}),
                 status: "approved",
               }
             : item
@@ -306,14 +409,15 @@ console.log("candidates =", candidates);
       );
 
       setMessage(
-        "Candidate approved successfully ✅"
+        res.data?.message ||
+          "Candidate approved successfully ✅"
       );
 
       await fetchCandidates();
     } catch (error) {
-      console.log(
+      console.error(
         "Approve Candidate Error:",
-        error
+        error.response?.data || error.message
       );
 
       setMessage(
@@ -321,14 +425,18 @@ console.log("candidates =", candidates);
           "Candidate approve failed."
       );
     }
-  };// ================= REJECT CANDIDATE =================
+  };
+
+  // =====================================================
+  // REJECT CANDIDATE
+  // =====================================================
 
   const rejectCandidate = async (id) => {
     try {
       const res = await axios.patch(
         `${API}/candidates/${id}/reject`,
         {},
-        authConfig
+        getAuthConfig()
       );
 
       setCandidates((old) =>
@@ -336,7 +444,7 @@ console.log("candidates =", candidates);
           item._id === id
             ? {
                 ...item,
-                ...(res.data.candidate || {}),
+                ...(res.data?.candidate || {}),
                 status: "rejected",
               }
             : item
@@ -344,14 +452,15 @@ console.log("candidates =", candidates);
       );
 
       setMessage(
-        "Candidate rejected successfully ❌"
+        res.data?.message ||
+          "Candidate rejected successfully ❌"
       );
 
       await fetchCandidates();
     } catch (error) {
-      console.log(
+      console.error(
         "Reject Candidate Error:",
-        error
+        error.response?.data || error.message
       );
 
       setMessage(
@@ -361,7 +470,9 @@ console.log("candidates =", candidates);
     }
   };
 
-  // ================= DELETE USER =================
+  // =====================================================
+  // DELETE USER
+  // =====================================================
 
   const deleteUser = async (item) => {
     const confirmDelete = window.confirm(
@@ -371,9 +482,9 @@ console.log("candidates =", candidates);
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(
+      const res = await axios.delete(
         `${API}/users/${item._id}`,
-        authConfig
+        getAuthConfig()
       );
 
       setUsers((old) =>
@@ -382,13 +493,16 @@ console.log("candidates =", candidates);
         )
       );
 
+      await fetchCandidates();
+
       setMessage(
-        "User permanently deleted successfully 🗑️"
+        res.data?.message ||
+          "User permanently deleted successfully 🗑️"
       );
     } catch (error) {
-      console.log(
+      console.error(
         "Delete User Error:",
-        error
+        error.response?.data || error.message
       );
 
       setMessage(
@@ -398,7 +512,9 @@ console.log("candidates =", candidates);
     }
   };
 
-  // ================= DELETE CANDIDATE =================
+  // =====================================================
+  // DELETE CANDIDATE
+  // =====================================================
 
   const deleteCandidate = async (candidate) => {
     const confirmDelete = window.confirm(
@@ -408,9 +524,9 @@ console.log("candidates =", candidates);
     if (!confirmDelete) return;
 
     try {
-      await axios.delete(
+      const res = await axios.delete(
         `${API}/candidates/${candidate._id}`,
-        authConfig
+        getAuthConfig()
       );
 
       setCandidates((old) =>
@@ -421,12 +537,13 @@ console.log("candidates =", candidates);
       );
 
       setMessage(
-        "Candidate permanently deleted successfully 🗑️"
+        res.data?.message ||
+          "Candidate permanently deleted successfully 🗑️"
       );
     } catch (error) {
-      console.log(
+      console.error(
         "Delete Candidate Error:",
-        error
+        error.response?.data || error.message
       );
 
       setMessage(
@@ -436,7 +553,9 @@ console.log("candidates =", candidates);
     }
   };
 
-  // ================= END ELECTION =================
+  // =====================================================
+  // END ELECTION
+  // =====================================================
 
   const endElection = async () => {
     const confirmEnd = window.confirm(
@@ -449,17 +568,17 @@ console.log("candidates =", candidates);
       const res = await axios.patch(
         `${API}/election/end`,
         {},
-        authConfig
+        getAuthConfig()
       );
 
       setMessage(
-        res.data.message ||
+        res.data?.message ||
           "Election ended successfully 🏆"
       );
     } catch (error) {
-      console.log(
+      console.error(
         "End Election Error:",
-        error
+        error.response?.data || error.message
       );
 
       setMessage(
@@ -469,13 +588,14 @@ console.log("candidates =", candidates);
     }
   };
 
-  // ================= RESTART ELECTION =================
+  // =====================================================
+  // RESTART ELECTION
+  // =====================================================
 
   const restartElection = async () => {
-    const confirmRestart =
-      window.confirm(
-        "Are you sure you want to start a new election?\n\nPrevious votes will be reset."
-      );
+    const confirmRestart = window.confirm(
+      "Are you sure you want to start a new election?\n\nPrevious votes will be reset."
+    );
 
     if (!confirmRestart) return;
 
@@ -483,20 +603,20 @@ console.log("candidates =", candidates);
       const res = await axios.patch(
         `${API}/election/reset`,
         {},
-        authConfig
+        getAuthConfig()
       );
 
       setMessage(
-        res.data.message ||
+        res.data?.message ||
           "New election started successfully 🔄"
       );
 
       await fetchCandidates();
       await fetchUsers();
     } catch (error) {
-      console.log(
+      console.error(
         "Reset Election Error:",
-        error
+        error.response?.data || error.message
       );
 
       setMessage(
@@ -506,34 +626,43 @@ console.log("candidates =", candidates);
     }
   };
 
-  // ================= SEARCH =================
+  // =====================================================
+  // SEARCH
+  // =====================================================
 
   const filteredCandidates = useMemo(() => {
-    return candidates.filter(
-      (candidate) => {
-        const text =
-          `${candidate.name || ""} ${
-            candidate.party || ""
-          }`.toLowerCase();
+    const searchText =
+      search.toLowerCase().trim();
 
-        return text.includes(
-          search.toLowerCase()
-        );
-      }
-    );
+    if (!searchText) {
+      return candidates;
+    }
+
+    return candidates.filter((candidate) => {
+      const text = `
+        ${candidate.name || ""}
+        ${candidate.party || ""}
+        ${candidate.status || ""}
+      `.toLowerCase();
+
+      return text.includes(searchText);
+    });
   }, [candidates, search]);
 
-  // ================= INITIAL =================
+  // =====================================================
+  // INITIAL
+  // =====================================================
 
   const getInitial = (name) => {
     return (
-      name
-        ?.charAt(0)
-        ?.toUpperCase() || "?"
+      name?.charAt(0)?.toUpperCase() ||
+      "?"
     );
   };
 
-  // ================= LOGOUT =================
+  // =====================================================
+  // LOGOUT
+  // =====================================================
 
   const handleLogout = () => {
     if (logout) {
@@ -547,7 +676,9 @@ console.log("candidates =", candidates);
     window.location.href = "/";
   };
 
-  // ================= USER ROW =================
+  // =====================================================
+  // USER ROW
+  // =====================================================
 
   const renderUserRow = (
     item,
@@ -622,9 +753,7 @@ console.log("candidates =", candidates);
                   <button
                     className="approve-btn"
                     onClick={() =>
-                      approveUser(
-                        item._id
-                      )
+                      approveUser(item._id)
                     }
                   >
                     ✓ Approve
@@ -633,9 +762,7 @@ console.log("candidates =", candidates);
                   <button
                     className="reject-btn"
                     onClick={() =>
-                      rejectUser(
-                        item._id
-                      )
+                      rejectUser(item._id)
                     }
                   >
                     ✕ Reject
@@ -657,7 +784,9 @@ console.log("candidates =", candidates);
     );
   };
 
-  // ================= PAGE TITLE =================
+  // =====================================================
+  // PAGE TITLE
+  // =====================================================
 
   const pageTitle =
     activePage === "dashboard"
@@ -674,10 +803,16 @@ console.log("candidates =", candidates);
       ? "Approved Candidates"
       : "Candidate Management";
 
+  // =====================================================
+  // UI
+  // =====================================================
+
   return (
     <div className="admin-layout">
 
-      {/* ================= SIDEBAR ================= */}
+      {/* =================================================
+          SIDEBAR
+      ================================================= */}
 
       <aside className="admin-sidebar">
 
@@ -701,6 +836,8 @@ console.log("candidates =", candidates);
 
         <div className="sidebar-menu">
 
+          {/* DASHBOARD */}
+
           <button
             className={
               activePage === "dashboard"
@@ -713,6 +850,8 @@ console.log("candidates =", candidates);
           >
             📊 Dashboard
           </button>
+
+          {/* CANDIDATE REQUESTS */}
 
           <button
             className={
@@ -737,6 +876,8 @@ console.log("candidates =", candidates);
             )}
           </button>
 
+          {/* VOTER REQUESTS */}
+
           <button
             className={
               activePage === "pendingUsers"
@@ -759,6 +900,8 @@ console.log("candidates =", candidates);
             )}
           </button>
 
+          {/* VOTERS */}
+
           <button
             className={
               activePage === "users"
@@ -777,6 +920,8 @@ console.log("candidates =", candidates);
             </b>
           </button>
 
+          {/* APPROVED CANDIDATES */}
+
           <button
             className={
               activePage === "approvedCandidates"
@@ -785,7 +930,6 @@ console.log("candidates =", candidates);
             }
             onClick={async () => {
               await fetchUsers();
-
               setActivePage(
                 "approvedCandidates"
               );
@@ -797,6 +941,8 @@ console.log("candidates =", candidates);
               {approvedCandidateUsers.length}
             </b>
           </button>
+
+          {/* ELECTION CANDIDATES */}
 
           <button
             className={
@@ -816,12 +962,16 @@ console.log("candidates =", candidates);
             </b>
           </button>
 
+          {/* END ELECTION */}
+
           <button
             className="menu-item"
             onClick={endElection}
           >
             🏁 End Election
           </button>
+
+          {/* RESTART ELECTION */}
 
           <button
             className="menu-item"
@@ -830,11 +980,19 @@ console.log("candidates =", candidates);
             🔄 Restart Election
           </button>
 
+          {/* REFRESH */}
+
           <button
             className="menu-item"
             onClick={async () => {
-              await fetchCandidates();
-              await fetchUsers();
+              setLoading(true);
+
+              await Promise.all([
+                fetchCandidates(),
+                fetchUsers(),
+              ]);
+
+              setLoading(false);
 
               setMessage(
                 "Data refreshed successfully 🔄"
@@ -846,6 +1004,8 @@ console.log("candidates =", candidates);
 
         </div>
 
+        {/* LOGOUT */}
+
         <button
           className="admin-logout"
           onClick={handleLogout}
@@ -853,11 +1013,15 @@ console.log("candidates =", candidates);
           🚪 Logout
         </button>
 
-      </aside>{/* ================= MAIN ================= */}
+      </aside>
+
+      {/* =================================================
+          MAIN
+      ================================================= */}
 
       <main className="admin-main">
 
-        {/* ================= TOPBAR ================= */}
+        {/* TOPBAR */}
 
         <header className="admin-topbar">
 
@@ -892,7 +1056,7 @@ console.log("candidates =", candidates);
 
         </header>
 
-        {/* ================= MESSAGE ================= */}
+        {/* MESSAGE */}
 
         {message && (
           <div className="admin-message">
@@ -910,7 +1074,9 @@ console.log("candidates =", candidates);
           </div>
         )}
 
-        {/* ================= DASHBOARD ================= */}
+        {/* =================================================
+            DASHBOARD
+        ================================================= */}
 
         {activePage === "dashboard" && (
           <section>
@@ -944,20 +1110,25 @@ console.log("candidates =", candidates);
             <div className="stats-grid">
 
               <div className="stat-card blue">
+
                 <div className="stat-icon">
                   👤
                 </div>
 
                 <div>
-                  <span>Voters</span>
+                  <span>
+                    Voters
+                  </span>
 
                   <strong>
                     {approvedUsers.length}
                   </strong>
                 </div>
+
               </div>
 
               <div className="stat-card orange">
+
                 <div className="stat-icon">
                   ⏳
                 </div>
@@ -971,9 +1142,11 @@ console.log("candidates =", candidates);
                     {pendingUsers.length}
                   </strong>
                 </div>
+
               </div>
 
               <div className="stat-card green">
+
                 <div className="stat-icon">
                   🗳️
                 </div>
@@ -987,9 +1160,11 @@ console.log("candidates =", candidates);
                     {pendingCandidateUsers.length}
                   </strong>
                 </div>
+
               </div>
 
               <div className="stat-card purple">
+
                 <div className="stat-icon">
                   🏆
                 </div>
@@ -1003,6 +1178,7 @@ console.log("candidates =", candidates);
                     {totalVotes}
                   </strong>
                 </div>
+
               </div>
 
             </div>
@@ -1024,8 +1200,7 @@ console.log("candidates =", candidates);
                 </strong>
 
                 <span>
-                  {pendingCandidateUsers.length}
-                  {" "}
+                  {pendingCandidateUsers.length}{" "}
                   pending
                 </span>
               </button>
@@ -1045,8 +1220,7 @@ console.log("candidates =", candidates);
                 </strong>
 
                 <span>
-                  {pendingUsers.length}
-                  {" "}
+                  {pendingUsers.length}{" "}
                   pending
                 </span>
               </button>
@@ -1056,7 +1230,9 @@ console.log("candidates =", candidates);
           </section>
         )}
 
-        {/* ================= VOTER REQUESTS ================= */}
+        {/* =================================================
+            VOTER REQUESTS
+        ================================================= */}
 
         {activePage === "pendingUsers" && (
           <section>
@@ -1090,12 +1266,10 @@ console.log("candidates =", candidates);
             <div className="modern-table">
 
               <div className="modern-table-head">
-
                 <span>User</span>
                 <span>Email</span>
                 <span>Status</span>
                 <span>Action</span>
-
               </div>
 
               {usersLoading ? (
@@ -1123,7 +1297,9 @@ console.log("candidates =", candidates);
           </section>
         )}
 
-        {/* ================= CANDIDATE REQUESTS ================= */}
+        {/* =================================================
+            CANDIDATE REQUESTS
+        ================================================= */}
 
         {activePage === "candidateRequests" && (
           <section>
@@ -1157,12 +1333,10 @@ console.log("candidates =", candidates);
             <div className="modern-table">
 
               <div className="modern-table-head">
-
                 <span>Candidate</span>
                 <span>Email</span>
                 <span>Status</span>
                 <span>Action</span>
-
               </div>
 
               {usersLoading ? (
@@ -1200,7 +1374,9 @@ console.log("candidates =", candidates);
           </section>
         )}
 
-        {/* ================= ALL VOTERS ================= */}
+        {/* =================================================
+            ALL VOTERS
+        ================================================= */}
 
         {activePage === "users" && (
           <section>
@@ -1229,17 +1405,28 @@ console.log("candidates =", candidates);
             <div className="modern-table">
 
               <div className="modern-table-head">
-
                 <span>User</span>
                 <span>Email</span>
                 <span>Status</span>
                 <span>Action</span>
-
               </div>
 
               {usersLoading ? (
                 <div className="loading-box">
                   Loading users...
+                </div>
+              ) : users.filter(
+                  (item) =>
+                    item.role === "user"
+                ).length === 0 ? (
+                <div className="empty-state">
+
+                  <div>👤</div>
+
+                  <h3>
+                    No Registered Voters
+                  </h3>
+
                 </div>
               ) : (
                 users
@@ -1257,7 +1444,9 @@ console.log("candidates =", candidates);
           </section>
         )}
 
-        {/* ================= APPROVED CANDIDATES ================= */}
+        {/* =================================================
+            APPROVED CANDIDATES
+        ================================================= */}
 
         {activePage === "approvedCandidates" && (
           <section>
@@ -1291,16 +1480,13 @@ console.log("candidates =", candidates);
             <div className="modern-table">
 
               <div className="modern-table-head">
-
                 <span>Candidate</span>
                 <span>Email</span>
                 <span>Status</span>
                 <span>Action</span>
-
               </div>
 
-              {approvedCandidateUsers.length ===
-              0 ? (
+              {approvedCandidateUsers.length === 0 ? (
                 <div className="empty-state">
 
                   <div>🗳️</div>
@@ -1326,7 +1512,9 @@ console.log("candidates =", candidates);
           </section>
         )}
 
-        {/* ================= ELECTION CANDIDATES ================= */}
+        {/* =================================================
+            ELECTION CANDIDATES
+        ================================================= */}
 
         {activePage === "candidates" && (
           <section>
@@ -1381,21 +1569,18 @@ console.log("candidates =", candidates);
             <div className="modern-table">
 
               <div className="modern-table-head">
-
                 <span>Candidate</span>
                 <span>Party</span>
                 <span>Votes</span>
                 <span>Status</span>
                 <span>Action</span>
-
               </div>
 
               {loading ? (
                 <div className="loading-box">
                   Loading candidates...
                 </div>
-              ) : filteredCandidates.length ===
-                0 ? (
+              ) : filteredCandidates.length === 0 ? (
                 <div className="empty-state">
 
                   <div>🗳️</div>
@@ -1431,12 +1616,18 @@ console.log("candidates =", candidates);
                           <strong>
                             {candidate.name}
                           </strong>
+
+                          <small>
+                            ID:{" "}
+                            {candidate._id?.slice(-6)}
+                          </small>
                         </div>
 
                       </div>
 
                       <span>
-                        {candidate.party}
+                        {candidate.party ||
+                          "Independent"}
                       </span>
 
                       <strong>
