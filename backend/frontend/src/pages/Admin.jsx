@@ -3,7 +3,7 @@ import "../Admin.css";
 import axios from "axios";
 
 const API = import.meta.env.VITE_API_URL ||
- "http://localhost:5000/api";
+ "https://votehub-8gj9.onrender.com";
 
 function Admin({ user, logout }) {
   const [candidates, setCandidates] = useState([]);

@@ -3,7 +3,7 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 
 const API = import.meta.env.VITE_API_URL ||
- "http://localhost:5000/api";
+ "https://votehub-8gj9.onrender.com";
 
 function Results({ user, logout, goDashboard }) {
   const [candidates, setCandidates] = useState([]);

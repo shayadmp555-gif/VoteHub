@@ -10,7 +10,7 @@ import "./App.css";
 
 // ================= API =================
 // Local testing ke liye
-const API = "http://localhost:5000/api";
+const API = "https://votehub-8gj9.onrender.com";
 
 function App() {
   const [page, setPage] = useState("login");

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import "../Admin.css";
 import axios from "axios";
 
-const API = "http://localhost:5000/api";
+const API = "https://votehub-8gj9.onrender.com";
 
 function Admin({ user, logout }) {
   const [candidates, setCandidates] = useState([]);
