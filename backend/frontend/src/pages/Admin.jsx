@@ -102,7 +102,7 @@ function Admin({ user, logout }) {
   }, []);
 
   // ================= USER FILTERS =================
-
+console.log("users =", users);
   const pendingUsers = users.filter(
     (item) =>
       item.role === "user" &&
@@ -131,7 +131,7 @@ function Admin({ user, logout }) {
     );
 
   // ================= CANDIDATE FILTERS =================
-
+console.log("candidates =", candidates);
   const pendingCandidates = candidates.filter(
     (item) => item.status === "pending"
   );
