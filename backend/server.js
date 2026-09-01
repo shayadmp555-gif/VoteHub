@@ -24,19 +24,21 @@ const app = express();
 
 // ================= MIDDLEWARE =================
 
+// ================= MIDDLEWARE =================
+
 app.use(
   cors({
-    origin:
-      process.env.CLIENT_URL ||
-      "http://localhost:5173",
-
+    origin: true,
     credentials: true,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
+app.options("*", cors());
+
 app.use(express.json());
-app.use(express.urlencoded({extended:true}));
-
-
+app.use(express.urlencoded({ extended: true }));
 
 // ================= TEST API =================
 
