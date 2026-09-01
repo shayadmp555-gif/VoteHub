@@ -1,7 +1,13 @@
 import { useEffect, useState } from "react";
 
-const API = import.meta.env.VITE_API_URL ||
- "https://votehub-8gj9.onrender.com";
+/*
+=====================================================
+VOTEHUB API
+Backend routes are under /api
+=====================================================
+*/
+
+const API = "https://votehub-8gj9.onrender.com/api";
 
 function Dashboard({ user, logout, goResults }) {
   const [candidates, setCandidates] = useState([]);
@@ -30,12 +36,13 @@ function Dashboard({ user, logout, goResults }) {
     localStorage.getItem("token") || "";
 
   // =====================================================
-  // FETCH CANDIDATES
+  // FETCH APPROVED CANDIDATES
   // =====================================================
 
   const fetchCandidates = async () => {
     try {
       setLoading(true);
+      setMessage("");
 
       const response = await fetch(
         `${API}/candidates`
@@ -43,17 +50,73 @@ function Dashboard({ user, logout, goResults }) {
 
       const data = await response.json();
 
+      console.log(
+        "APPROVED CANDIDATES RESPONSE:",
+        data
+      );
+
       if (!response.ok) {
+        setCandidates([]);
+
         setMessage(
           data.message ||
             "Candidates load failed."
         );
+
         return;
       }
 
-      setCandidates(data);
+      /*
+      Backend may return either:
+
+      [
+        {...},
+        {...}
+      ]
+
+      OR
+
+      {
+        success: true,
+        candidates: [...]
+      }
+      */
+
+      let candidateList = [];
+
+      if (Array.isArray(data)) {
+        candidateList = data;
+      } else if (
+        Array.isArray(data.candidates)
+      ) {
+        candidateList = data.candidates;
+      } else if (
+        Array.isArray(data.data)
+      ) {
+        candidateList = data.data;
+      }
+
+      /*
+      Extra safety:
+      User dashboard should show only
+      approved candidates.
+      */
+
+      candidateList =
+        candidateList.filter(
+          (candidate) =>
+            candidate.status === "approved"
+        );
+
+      setCandidates(candidateList);
+
     } catch (error) {
-      console.log(error);
+      console.error(
+        "Candidates connection error:",
+        error
+      );
+
+      setCandidates([]);
 
       setMessage(
         "Server se connection nahi ho raha."
@@ -75,11 +138,17 @@ function Dashboard({ user, logout, goResults }) {
 
       const data = await response.json();
 
+      console.log(
+        "Election Status:",
+        data
+      );
+
       if (response.ok) {
         setElectionStatus(
           data.status || "running"
         );
       }
+
     } catch (error) {
       console.log(
         "Election status error:",
@@ -105,7 +174,9 @@ function Dashboard({ user, logout, goResults }) {
     e.preventDefault();
 
     if (!token) {
-      setMessage("Please login first.");
+      setMessage(
+        "Please login first."
+      );
       return;
     }
 
@@ -142,7 +213,9 @@ function Dashboard({ user, logout, goResults }) {
 
           body: JSON.stringify({
             name: candidateName.trim(),
+
             party: candidateParty.trim(),
+
             photo: candidatePhoto.trim(),
           }),
         }
@@ -151,11 +224,17 @@ function Dashboard({ user, logout, goResults }) {
       const data =
         await response.json();
 
+      console.log(
+        "Candidate registration:",
+        data
+      );
+
       if (!response.ok) {
         setMessage(
           data.message ||
             "Candidate registration failed."
         );
+
         return;
       }
 
@@ -168,8 +247,9 @@ function Dashboard({ user, logout, goResults }) {
       setCandidatePhoto("");
 
       setShowCandidateForm(false);
+
     } catch (error) {
-      console.log(
+      console.error(
         "Candidate registration error:",
         error
       );
@@ -177,6 +257,7 @@ function Dashboard({ user, logout, goResults }) {
       setMessage(
         "Server se connection nahi ho raha."
       );
+
     } finally {
       setCandidateLoading(false);
     }
@@ -188,7 +269,10 @@ function Dashboard({ user, logout, goResults }) {
 
   const vote = async (candidateId) => {
     if (!token) {
-      setMessage("Please login first.");
+      setMessage(
+        "Please login first."
+      );
+
       return;
     }
 
@@ -196,6 +280,7 @@ function Dashboard({ user, logout, goResults }) {
       setMessage(
         "🏁 Election has ended. Voting is closed."
       );
+
       return;
     }
 
@@ -203,6 +288,7 @@ function Dashboard({ user, logout, goResults }) {
       setMessage(
         "You have already voted."
       );
+
       return;
     }
 
@@ -236,13 +322,23 @@ function Dashboard({ user, logout, goResults }) {
       const data =
         await response.json();
 
+      console.log(
+        "Vote response:",
+        data
+      );
+
       if (!response.ok) {
         setMessage(
           data.message ||
             "Voting failed."
         );
+
         return;
       }
+
+      /*
+      Update local user
+      */
 
       const updatedUser = {
         ...user,
@@ -258,11 +354,16 @@ function Dashboard({ user, logout, goResults }) {
         "✅ Your vote has been submitted successfully!"
       );
 
+      /*
+      Update vote count immediately
+      */
+
       setCandidates((old) =>
         old.map((candidate) =>
           candidate._id === candidateId
             ? {
                 ...candidate,
+
                 votes:
                   Number(
                     candidate.votes || 0
@@ -271,8 +372,12 @@ function Dashboard({ user, logout, goResults }) {
             : candidate
         )
       );
+
     } catch (error) {
-      console.log(error);
+      console.error(
+        "Voting error:",
+        error
+      );
 
       setMessage(
         "Voting failed. Please try again."
@@ -286,12 +391,18 @@ function Dashboard({ user, logout, goResults }) {
 
   const getInitial = (name) => {
     return (
-      name?.charAt(0)?.toUpperCase() || "?"
+      name
+        ?.charAt(0)
+        ?.toUpperCase() || "?"
     );
   };
 
   const isElectionEnded =
     electionStatus === "ended";
+
+  // =====================================================
+  // RENDER
+  // =====================================================
 
   return (
     <div className="dashboard">
@@ -317,7 +428,9 @@ function Dashboard({ user, logout, goResults }) {
             🏠 Home
           </button>
 
-          <button onClick={goResults}>
+          <button
+            onClick={goResults}
+          >
             📊 Results
           </button>
 
@@ -336,7 +449,9 @@ function Dashboard({ user, logout, goResults }) {
           <div className="user-info">
 
             <div className="avatar">
-              {getInitial(user?.name)}
+              {getInitial(
+                user?.name
+              )}
             </div>
 
             <span>
@@ -404,16 +519,18 @@ function Dashboard({ user, logout, goResults }) {
             </div>
 
             <span>
-              ELECTION 
+              ELECTION
             </span>
 
-           
+            <strong>
+              {isElectionEnded
+                ? "ENDED"
+                : "RUNNING"}
+            </strong>
 
           </div>
 
         </section>
-
-       
 
         {/* =================================================
             MESSAGE
@@ -468,10 +585,21 @@ function Dashboard({ user, logout, goResults }) {
 
             <div className="preamble-values">
 
-              <span>⚖️ Justice</span>
-              <span>🕊️ Liberty</span>
-              <span>🤝 Equality</span>
-              <span>🇮🇳 Fraternity</span>
+              <span>
+                ⚖️ Justice
+              </span>
+
+              <span>
+                🕊️ Liberty
+              </span>
+
+              <span>
+                🤝 Equality
+              </span>
+
+              <span>
+                🇮🇳 Fraternity
+              </span>
 
             </div>
 
@@ -573,6 +701,7 @@ function Dashboard({ user, logout, goResults }) {
             <div className="registration-header">
 
               <div>
+
                 <p className="section-label">
                   CANDIDATE APPLICATION
                 </p>
@@ -585,6 +714,7 @@ function Dashboard({ user, logout, goResults }) {
                   Submit your election profile
                   for Admin approval.
                 </p>
+
               </div>
 
               <div className="registration-icon">
@@ -678,6 +808,7 @@ function Dashboard({ user, logout, goResults }) {
                     setShowCandidateForm(
                       false
                     );
+
                     setMessage("");
                   }}
                 >
@@ -758,9 +889,14 @@ function Dashboard({ user, logout, goResults }) {
 
           </div>
 
+          {/* =================================================
+              LOADING
+          ================================================= */}
+
           {loading ? (
 
             <div className="empty">
+
               <div className="loading-icon">
                 🗳️
               </div>
@@ -772,6 +908,7 @@ function Dashboard({ user, logout, goResults }) {
               <p>
                 Please wait.
               </p>
+
             </div>
 
           ) : (
@@ -783,27 +920,41 @@ function Dashboard({ user, logout, goResults }) {
 
                   <div
                     className="candidate-card"
-                    key={candidate._id}
+                    key={
+                      candidate._id ||
+                      index
+                    }
                   >
+
+                    {/* ================= TOP ================= */}
 
                     <div className="candidate-top">
 
                       {candidate.photo ? (
 
                         <img
-                          src={candidate.photo}
+                          src={
+                            candidate.photo
+                          }
                           alt={
                             candidate.name
                           }
                           className="candidate-photo"
+
+                          onError={(e) => {
+                            e.currentTarget.style.display =
+                              "none";
+                          }}
                         />
 
                       ) : (
 
                         <div className="candidate-avatar">
+
                           {getInitial(
                             candidate.name
                           )}
+
                         </div>
 
                       )}
@@ -814,6 +965,8 @@ function Dashboard({ user, logout, goResults }) {
 
                     </div>
 
+                    {/* ================= DETAILS ================= */}
+
                     <div className="candidate-details">
 
                       <span className="approved-badge">
@@ -821,21 +974,29 @@ function Dashboard({ user, logout, goResults }) {
                       </span>
 
                       <h3>
-                        {candidate.name}
+                        {candidate.name ||
+                          "Candidate"}
                       </h3>
 
                       <p className="party">
-                        🏛️ {candidate.party}
+                        🏛️{" "}
+                        {candidate.party ||
+                          "Independent"}
                       </p>
 
                     </div>
+
+                    {/* ================= BOTTOM ================= */}
 
                     <div className="candidate-bottom">
 
                       <div className="vote-count">
 
                         <strong>
-                          {candidate.votes || 0}
+                          {Number(
+                            candidate.votes ||
+                              0
+                          )}
                         </strong>
 
                         <span>
@@ -846,31 +1007,41 @@ function Dashboard({ user, logout, goResults }) {
 
                       <button
                         className="vote-btn"
+
                         disabled={
                           user?.hasVoted ||
                           isElectionEnded
                         }
+
                         onClick={() =>
                           vote(
                             candidate._id
                           )
                         }
                       >
+
                         {isElectionEnded
                           ? "Election Ended"
                           : user?.hasVoted
                           ? "Vote Submitted ✓"
                           : "Vote Now →"}
+
                       </button>
 
                     </div>
 
                   </div>
+
                 )
               )}
 
             </div>
+
           )}
+
+          {/* =================================================
+              NO CANDIDATES
+          ================================================= */}
 
           {!loading &&
             candidates.length === 0 && (
@@ -890,10 +1061,20 @@ function Dashboard({ user, logout, goResults }) {
                   after Admin approval.
                 </p>
 
+                <button
+                  className="primary-btn"
+                  onClick={fetchCandidates}
+                >
+                  🔄 Refresh Candidates
+                </button>
+
               </div>
+
             )}
 
-        </section>{/* =================================================
+        </section>
+
+        {/* =================================================
             DEMOCRACY MESSAGE
         ================================================= */}
 
