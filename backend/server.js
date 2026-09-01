@@ -24,8 +24,6 @@ const app = express();
 
 // ================= MIDDLEWARE =================
 
-// ================= MIDDLEWARE =================
-
 app.use(
   cors({
     origin: [
@@ -38,7 +36,6 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"]
   })
 );
-app.options("*", cors());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -48,44 +45,29 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/api", (req, res) => {
   res.status(200).json({
     success: true,
-    message: "VoteHub API is working 🚀",
+    message: "VoteHub API is working 🚀"
   });
 });
 
 // ================= AUTH =================
 
-app.use(
-  "/api/auth",
-  authRoutes
-);
+app.use("/api/auth", authRoutes);
 
 // ================= USERS =================
 
-app.use(
-  "/api/users",
-  userRoutes
-);
+app.use("/api/users", userRoutes);
 
 // ================= CANDIDATES =================
 
-app.use(
-  "/api/candidates",
-  candidateRoutes
-);
+app.use("/api/candidates", candidateRoutes);
 
 // ================= VOTES =================
 
-app.use(
-  "/api/votes",
-  voteRoutes
-);
+app.use("/api/votes", voteRoutes);
 
 // ================= ELECTION =================
 
-app.use(
-  "/api/election",
-  electionRoutes
-);
+app.use("/api/election", electionRoutes);
 
 // ================= API 404 =================
 
@@ -100,7 +82,7 @@ app.use("/api", (req, res) => {
     success: false,
     message: "API route not found",
     method: req.method,
-    route: req.originalUrl,
+    route: req.originalUrl
   });
 });
 
@@ -112,9 +94,7 @@ const frontendPath = path.join(
   "dist"
 );
 
-app.use(
-  express.static(frontendPath)
-);
+app.use(express.static(frontendPath));
 
 // React SPA fallback
 app.use((req, res) => {
@@ -131,31 +111,24 @@ app.use((req, res) => {
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
+    console.log("MongoDB connected ✅");
 
-    console.log(
-      "MongoDB connected ✅"
+    const PORT = process.env.PORT || 5000;
+
+    app.listen(
+      PORT,
+      "0.0.0.0",
+      () => {
+        console.log(
+          `Server running on port ${PORT} 🚀`
+        );
+      }
     );
-
-    const PORT =
-      process.env.PORT || 5000;
-
-   app.listen(
-  PORT,
-  "0.0.0.0",
-  () => {
-    console.log(
-      `Server running on port ${PORT} 🚀`
-    );
-  }
-);
   })
   .catch((error) => {
-
     console.log(
       "MongoDB connection failed ❌"
     );
 
-    console.log(
-      error.message
-    );
+    console.log(error.message);
   });
