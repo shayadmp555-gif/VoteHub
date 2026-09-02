@@ -421,7 +421,9 @@ function Dashboard({ user, logout, goResults }) {
             </p>
 
             <h2>
-              We, the People of India
+             
+🗳️ आपलं मतदान, आपला अधिकार
+
             </h2>
 
             <p className="preamble-text">
