@@ -8991,4 +8991,450 @@ body {
     background: #171a21 !important;
     color: #ffffff;
   }
+}/* MOBILE NAVBAR */
+
+.mobile-menu-btn {
+  display: none;
+  border: none;
+  background: transparent;
+  color: white;
+  font-size: 26px;
+  cursor: pointer;
+  padding: 6px 10px;
+}
+
+@media (max-width: 768px) {
+
+  .navbar {
+    position: relative;
+  }
+
+  .mobile-menu-btn {
+    display: block;
+  }
+
+  .nav-right {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+
+    flex-direction: column;
+    align-items: stretch;
+
+    background: white;
+    padding: 12px;
+    gap: 6px;
+
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    z-index: 9999;
+  }
+
+  .nav-right.mobile-open {
+    display: flex;
+  }
+
+  .nav-right button {
+    width: 100%;
+    padding: 12px 14px;
+    text-align: left;
+  }
+
+  .nav-right .user-info {
+    width: 100%;
+    padding: 10px;
+  }
+
+  .logout-btn {
+    width: 100%;
+  }
+
+  .dashboard-content {
+    padding: 15px;
+  }
+
+  .constitution-hero {
+    flex-direction: column;
+  }
+
+  .rights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .candidate-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .candidate-bottom {
+    gap: 12px;
+  }
+
+  .vote-btn {
+    width: 100%;
+  }
+
+  .democracy-banner {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+@media (max-width: 480px) {
+
+  .navbar {
+    padding: 12px 14px;
+  }
+
+  .nav-brand {
+    font-size: 20px;
+  }
+
+  .dashboard-content {
+    padding: 12px;
+  }
+
+  .hero-content h1 {
+    font-size: 30px;
+  }
+
+  .candidate-card {
+    width: 100%;
+  }
+
+  .candidate-bottom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vote-btn {
+    width: 100%;
+  }
+}/* =====================================================
+   MOBILE NAVBAR + RESPONSIVE DASHBOARD
+   ===================================================== */
+
+.mobile-menu-btn {
+  display: none;
+  border: none;
+  background: transparent;
+  color: white;
+  font-size: 28px;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.mobile-nav-menu {
+  display: none;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+
+  .navbar {
+    padding: 14px 20px;
+  }
+
+  .nav-right {
+    gap: 8px;
+  }
+
+  .nav-right button {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .dashboard-content {
+    padding: 20px;
+  }
+
+  .constitution-hero {
+    gap: 20px;
+  }
+
+  .rights-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .candidate-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* =====================================================
+   MOBILE
+   ===================================================== */
+
+@media (max-width: 650px) {
+
+  .navbar {
+    position: relative;
+    padding: 13px 16px;
+    min-height: 62px;
+  }
+
+  .nav-brand {
+    font-size: 21px;
+  }
+
+  /* Hide desktop navbar */
+  .nav-right {
+    display: none !important;
+  }
+
+  /* Show hamburger */
+  .mobile-menu-btn {
+    display: block;
+    margin-left: auto;
+  }
+
+  /* Mobile dropdown */
+  .mobile-nav-menu {
+    display: flex;
+    position: absolute;
+    top: 62px;
+    left: 10px;
+    right: 10px;
+    z-index: 9999;
+
+    flex-direction: column;
+    gap: 5px;
+
+    padding: 10px;
+
+    border-radius: 14px;
+
+    background: #ffffff;
+
+    box-shadow:
+      0 10px 30px rgba(0, 0, 0, 0.20);
+  }
+
+  .mobile-nav-menu button {
+    width: 100%;
+    border: none;
+    background: transparent;
+
+    padding: 13px 14px;
+
+    text-align: left;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    border-radius: 9px;
+
+    cursor: pointer;
+  }
+
+  .mobile-nav-menu button:hover {
+    background: #f1f5f9;
+  }
+
+  .mobile-user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 12px 14px;
+
+    border-top: 1px solid #e5e7eb;
+    border-bottom: 1px solid #e5e7eb;
+
+    margin: 4px 0;
+  }
+
+  .mobile-user-info span {
+    font-weight: 600;
+    color: #1e293b;
+  }
+
+  .mobile-logout-btn {
+    color: #dc2626 !important;
+  }
+
+  /* Main */
+  .dashboard-content {
+    width: 100%;
+    padding: 14px;
+    box-sizing: border-box;
+  }
+
+  /* Hero */
+  .constitution-hero {
+    display: flex;
+    flex-direction: column;
+
+    padding: 24px 18px;
+
+    text-align: center;
+
+    border-radius: 16px;
+  }
+
+  .hero-emblem {
+    margin: auto;
+  }
+
+  .hero-content {
+    width: 100%;
+  }
+
+  .hero-content h1 {
+    font-size: 31px;
+    line-height: 1.15;
+  }
+
+  .hero-content p {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .hero-status {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Preamble */
+  .preamble-card {
+    flex-direction: column;
+    text-align: center;
+
+    padding: 20px 16px;
+  }
+
+  .preamble-values {
+    justify-content: center;
+    gap: 7px;
+  }
+
+  .preamble-values span {
+    font-size: 12px;
+    padding: 7px 9px;
+  }
+
+  /* Rights */
+  .rights-heading {
+    align-items: flex-start;
+  }
+
+  .rights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .right-card {
+    padding: 20px;
+  }
+
+  /* Candidate registration */
+  .registration-header {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .candidate-registration {
+    padding: 20px 15px;
+  }
+
+  .candidate-form {
+    width: 100%;
+  }
+
+  .form-group input {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .form-buttons {
+    flex-direction: column;
+  }
+
+  .form-buttons button {
+    width: 100%;
+  }
+
+  /* Candidates heading */
+  .section-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .candidate-count {
+    align-self: flex-start;
+  }
+
+  /* Candidate cards */
+  .candidate-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .candidate-card {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .candidate-bottom {
+    gap: 10px;
+  }
+
+  .vote-btn {
+    flex: 1;
+  }
+
+  /* Election closed */
+  .closed-election {
+    flex-direction: column;
+    text-align: center;
+    padding: 22px 16px;
+  }
+
+  .closed-election .primary-btn {
+    width: 100%;
+  }
+
+  /* Democracy banner */
+  .democracy-banner {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+    padding: 22px 16px;
+  }
+
+  /* Footer */
+  .vote-footer {
+    padding: 25px 15px;
+    text-align: center;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+
+  .dashboard-content {
+    padding: 10px;
+  }
+
+  .hero-content h1 {
+    font-size: 27px;
+  }
+
+  .hero-content p {
+    font-size: 13px;
+  }
+
+  .candidate-bottom {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .vote-count {
+    justify-content: center;
+  }
+
+  .vote-btn {
+    width: 100%;
+  }
 }

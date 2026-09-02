@@ -1,196 +1,98 @@
 import { useEffect, useState } from "react";
 
-/*
-=====================================================
-VOTEHUB API
-Backend routes are under /api
-=====================================================
-*/
-
 const API = "https://votehub-8gj9.onrender.com/api";
 
 function Dashboard({ user, logout, goResults }) {
   const [candidates, setCandidates] = useState([]);
-  const [electionStatus, setElectionStatus] =
-    useState("running");
-
+  const [electionStatus, setElectionStatus] = useState("running");
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
 
-  const [showCandidateForm, setShowCandidateForm] =
-    useState(false);
+  const [showCandidateForm, setShowCandidateForm] = useState(false);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
-  const [candidateName, setCandidateName] =
-    useState("");
+  const [candidateName, setCandidateName] = useState("");
+  const [candidateParty, setCandidateParty] = useState("");
+  const [candidatePhoto, setCandidatePhoto] = useState("");
+  const [candidateLoading, setCandidateLoading] = useState(false);
 
-  const [candidateParty, setCandidateParty] =
-    useState("");
-
-  const [candidatePhoto, setCandidatePhoto] =
-    useState("");
-
-  const [candidateLoading, setCandidateLoading] =
-    useState(false);
-
-  const token =
-    localStorage.getItem("token") || "";
-
-  // =====================================================
-  // FETCH APPROVED CANDIDATES
-  // =====================================================
+  const token = localStorage.getItem("token") || "";
 
   const fetchCandidates = async () => {
     try {
       setLoading(true);
       setMessage("");
 
-      const response = await fetch(
-        `${API}/candidates`
-      );
-
+      const response = await fetch(`${API}/candidates`);
       const data = await response.json();
 
-      console.log(
-        "APPROVED CANDIDATES RESPONSE:",
-        data
-      );
+      console.log("APPROVED CANDIDATES RESPONSE:", data);
 
       if (!response.ok) {
         setCandidates([]);
-
-        setMessage(
-          data.message ||
-            "Candidates load failed."
-        );
-
+        setMessage(data.message || "Candidates load failed.");
         return;
       }
-
-      /*
-      Backend may return either:
-
-      [
-        {...},
-        {...}
-      ]
-
-      OR
-
-      {
-        success: true,
-        candidates: [...]
-      }
-      */
 
       let candidateList = [];
 
       if (Array.isArray(data)) {
         candidateList = data;
-      } else if (
-        Array.isArray(data.candidates)
-      ) {
+      } else if (Array.isArray(data.candidates)) {
         candidateList = data.candidates;
-      } else if (
-        Array.isArray(data.data)
-      ) {
+      } else if (Array.isArray(data.data)) {
         candidateList = data.data;
       }
 
-      /*
-      Extra safety:
-      User dashboard should show only
-      approved candidates.
-      */
-
-      candidateList =
-        candidateList.filter(
-          (candidate) =>
-            candidate.status === "approved"
-        );
+      candidateList = candidateList.filter(
+        (candidate) => candidate.status === "approved"
+      );
 
       setCandidates(candidateList);
-
     } catch (error) {
-      console.error(
-        "Candidates connection error:",
-        error
-      );
-
+      console.error("Candidates connection error:", error);
       setCandidates([]);
-
-      setMessage(
-        "Server se connection nahi ho raha."
-      );
+      setMessage("Server se connection nahi ho raha.");
     } finally {
       setLoading(false);
     }
   };
 
-  // =====================================================
-  // FETCH ELECTION STATUS
-  // =====================================================
-
   const fetchElectionStatus = async () => {
     try {
-      const response = await fetch(
-        `${API}/election/status`
-      );
-
+      const response = await fetch(`${API}/election/status`);
       const data = await response.json();
 
-      console.log(
-        "Election Status:",
-        data
-      );
+      console.log("Election Status:", data);
 
       if (response.ok) {
-        setElectionStatus(
-          data.status || "running"
-        );
+        setElectionStatus(data.status || "running");
       }
-
     } catch (error) {
-      console.log(
-        "Election status error:",
-        error
-      );
+      console.log("Election status error:", error);
     }
   };
-
-  // =====================================================
-  // INITIAL LOAD
-  // =====================================================
 
   useEffect(() => {
     fetchCandidates();
     fetchElectionStatus();
   }, []);
 
-  // =====================================================
-  // REGISTER CANDIDATE
-  // =====================================================
-
   const submitCandidate = async (e) => {
     e.preventDefault();
 
     if (!token) {
-      setMessage(
-        "Please login first."
-      );
+      setMessage("Please login first.");
       return;
     }
 
     if (!candidateName.trim()) {
-      setMessage(
-        "Candidate name is required."
-      );
+      setMessage("Candidate name is required.");
       return;
     }
 
     if (!candidateParty.trim()) {
-      setMessage(
-        "Party name is required."
-      );
+      setMessage("Party name is required.");
       return;
     }
 
@@ -198,43 +100,27 @@ function Dashboard({ user, logout, goResults }) {
       setCandidateLoading(true);
       setMessage("");
 
-      const response = await fetch(
-        `${API}/candidates`,
-        {
-          method: "POST",
+      const response = await fetch(`${API}/candidates`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: candidateName.trim(),
+          party: candidateParty.trim(),
+          photo: candidatePhoto.trim(),
+        }),
+      });
 
-          headers: {
-            "Content-Type":
-              "application/json",
+      const data = await response.json();
 
-            Authorization:
-              `Bearer ${token}`,
-          },
-
-          body: JSON.stringify({
-            name: candidateName.trim(),
-
-            party: candidateParty.trim(),
-
-            photo: candidatePhoto.trim(),
-          }),
-        }
-      );
-
-      const data =
-        await response.json();
-
-      console.log(
-        "Candidate registration:",
-        data
-      );
+      console.log("Candidate registration:", data);
 
       if (!response.ok) {
         setMessage(
-          data.message ||
-            "Candidate registration failed."
+          data.message || "Candidate registration failed."
         );
-
         return;
       }
 
@@ -245,100 +131,57 @@ function Dashboard({ user, logout, goResults }) {
       setCandidateName("");
       setCandidateParty("");
       setCandidatePhoto("");
-
       setShowCandidateForm(false);
-
     } catch (error) {
-      console.error(
-        "Candidate registration error:",
-        error
-      );
-
-      setMessage(
-        "Server se connection nahi ho raha."
-      );
-
+      console.error("Candidate registration error:", error);
+      setMessage("Server se connection nahi ho raha.");
     } finally {
       setCandidateLoading(false);
     }
   };
 
-  // =====================================================
-  // CAST VOTE
-  // =====================================================
-
   const vote = async (candidateId) => {
     if (!token) {
-      setMessage(
-        "Please login first."
-      );
-
+      setMessage("Please login first.");
       return;
     }
 
     if (electionStatus === "ended") {
-      setMessage(
-        "🏁 Election has ended. Voting is closed."
-      );
-
+      setMessage("🏁 Election has ended. Voting is closed.");
       return;
     }
 
     if (user?.hasVoted) {
-      setMessage(
-        "You have already voted."
-      );
-
+      setMessage("You have already voted.");
       return;
     }
 
-    const confirmVote =
-      window.confirm(
-        "Are you sure you want to vote for this candidate?"
-      );
+    const confirmVote = window.confirm(
+      "Are you sure you want to vote for this candidate?"
+    );
 
     if (!confirmVote) return;
 
     try {
-      const response = await fetch(
-        `${API}/votes`,
-        {
-          method: "POST",
+      const response = await fetch(`${API}/votes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          candidateId,
+        }),
+      });
 
-          headers: {
-            "Content-Type":
-              "application/json",
+      const data = await response.json();
 
-            Authorization:
-              `Bearer ${token}`,
-          },
-
-          body: JSON.stringify({
-            candidateId,
-          }),
-        }
-      );
-
-      const data =
-        await response.json();
-
-      console.log(
-        "Vote response:",
-        data
-      );
+      console.log("Vote response:", data);
 
       if (!response.ok) {
-        setMessage(
-          data.message ||
-            "Voting failed."
-        );
-
+        setMessage(data.message || "Voting failed.");
         return;
       }
-
-      /*
-      Update local user
-      */
 
       const updatedUser = {
         ...user,
@@ -354,62 +197,32 @@ function Dashboard({ user, logout, goResults }) {
         "✅ Your vote has been submitted successfully!"
       );
 
-      /*
-      Update vote count immediately
-      */
-
       setCandidates((old) =>
         old.map((candidate) =>
           candidate._id === candidateId
             ? {
                 ...candidate,
-
-                votes:
-                  Number(
-                    candidate.votes || 0
-                  ) + 1,
+                votes: Number(candidate.votes || 0) + 1,
               }
             : candidate
         )
       );
-
     } catch (error) {
-      console.error(
-        "Voting error:",
-        error
-      );
-
-      setMessage(
-        "Voting failed. Please try again."
-      );
+      console.error("Voting error:", error);
+      setMessage("Voting failed. Please try again.");
     }
   };
 
-  // =====================================================
-  // HELPERS
-  // =====================================================
-
   const getInitial = (name) => {
-    return (
-      name
-        ?.charAt(0)
-        ?.toUpperCase() || "?"
-    );
+    return name?.charAt(0)?.toUpperCase() || "?";
   };
 
-  const isElectionEnded =
-    electionStatus === "ended";
-
-  // =====================================================
-  // RENDER
-  // =====================================================
+  const isElectionEnded = electionStatus === "ended";
 
   return (
     <div className="dashboard">
 
-      {/* =================================================
-          NAVBAR
-      ================================================= */}
+      {/* ================= NAVBAR ================= */}
 
       <nav className="navbar">
 
@@ -417,6 +230,7 @@ function Dashboard({ user, logout, goResults }) {
           🗳️ Vote<span>Hub</span>
         </div>
 
+        {/* DESKTOP NAVIGATION */}
         <div className="nav-right">
 
           <button
@@ -429,35 +243,30 @@ function Dashboard({ user, logout, goResults }) {
           </button>
 
           <button
-            onClick={goResults}
+            onClick={() => {
+              setShowMobileMenu(false);
+              goResults();
+            }}
           >
             📊 Results
           </button>
 
           <button
             onClick={() => {
-              setShowCandidateForm(
-                !showCandidateForm
-              );
-
+              setShowCandidateForm(!showCandidateForm);
               setMessage("");
+              setShowMobileMenu(false);
             }}
           >
             📝 Candidate
           </button>
 
           <div className="user-info">
-
             <div className="avatar">
-              {getInitial(
-                user?.name
-              )}
+              {getInitial(user?.name)}
             </div>
 
-            <span>
-              {user?.name}
-            </span>
-
+            <span>{user?.name}</span>
           </div>
 
           <button
@@ -466,20 +275,79 @@ function Dashboard({ user, logout, goResults }) {
           >
             Logout
           </button>
-
         </div>
 
+        {/* MOBILE MENU BUTTON */}
+        <button
+          className="mobile-menu-btn"
+          onClick={() =>
+            setShowMobileMenu(!showMobileMenu)
+          }
+          aria-label="Open menu"
+        >
+          ☰
+        </button>
+
+        {/* MOBILE MENU */}
+        {showMobileMenu && (
+          <div className="mobile-nav-menu">
+
+            <button
+              onClick={() => {
+                fetchCandidates();
+                fetchElectionStatus();
+                setShowMobileMenu(false);
+              }}
+            >
+              🏠 Home
+            </button>
+
+            <button
+              onClick={() => {
+                setShowMobileMenu(false);
+                goResults();
+              }}
+            >
+              📊 Results
+            </button>
+
+            <button
+              onClick={() => {
+                setShowCandidateForm(!showCandidateForm);
+                setMessage("");
+                setShowMobileMenu(false);
+              }}
+            >
+              📝 Candidate
+            </button>
+
+            <div className="mobile-user-info">
+              <div className="avatar">
+                {getInitial(user?.name)}
+              </div>
+
+              <span>{user?.name}</span>
+            </div>
+
+            <button
+              className="mobile-logout-btn"
+              onClick={() => {
+                setShowMobileMenu(false);
+                logout();
+              }}
+            >
+              🚪 Logout
+            </button>
+
+          </div>
+        )}
       </nav>
 
-      {/* =================================================
-          MAIN
-      ================================================= */}
+      {/* ================= MAIN ================= */}
 
       <main className="dashboard-content">
 
-        {/* =================================================
-            HERO
-        ================================================= */}
+        {/* HERO */}
 
         <section className="constitution-hero">
 
@@ -513,50 +381,32 @@ function Dashboard({ user, logout, goResults }) {
           <div className="hero-status">
 
             <div className="status-icon">
-              {isElectionEnded
-                ? "🏁"
-                : "🗳️"}
+              {isElectionEnded ? "🏁" : "🗳️"}
             </div>
 
-            <span>
-              ELECTION
-            </span>
+            <span>ELECTION</span>
 
             <strong>
-              {isElectionEnded
-                ? "ENDED"
-                : "RUNNING"}
+              {isElectionEnded ? "ENDED" : "RUNNING"}
             </strong>
 
           </div>
 
         </section>
 
-        {/* =================================================
-            MESSAGE
-        ================================================= */}
+        {/* MESSAGE */}
 
         {message && (
           <div className="message">
+            <span>{message}</span>
 
-            <span>
-              {message}
-            </span>
-
-            <button
-              onClick={() =>
-                setMessage("")
-              }
-            >
+            <button onClick={() => setMessage("")}>
               ×
             </button>
-
           </div>
         )}
 
-        {/* =================================================
-            PREAMBLE
-        ================================================= */}
+        {/* PREAMBLE */}
 
         <section className="preamble-card">
 
@@ -584,39 +434,22 @@ function Dashboard({ user, logout, goResults }) {
             </p>
 
             <div className="preamble-values">
-
-              <span>
-                ⚖️ Justice
-              </span>
-
-              <span>
-                🕊️ Liberty
-              </span>
-
-              <span>
-                🤝 Equality
-              </span>
-
-              <span>
-                🇮🇳 Fraternity
-              </span>
-
+              <span>⚖️ Justice</span>
+              <span>🕊️ Liberty</span>
+              <span>🤝 Equality</span>
+              <span>🇮🇳 Fraternity</span>
             </div>
 
           </div>
-
         </section>
 
-        {/* =================================================
-            YOUR RIGHT TO VOTE
-        ================================================= */}
+        {/* RIGHTS */}
 
         <section className="rights-section">
 
           <div className="rights-heading">
 
             <div>
-
               <p className="section-label">
                 DEMOCRATIC PARTICIPATION
               </p>
@@ -624,7 +457,6 @@ function Dashboard({ user, logout, goResults }) {
               <h2>
                 Your Right to Vote
               </h2>
-
             </div>
 
             <span className="constitution-mark">
@@ -636,10 +468,7 @@ function Dashboard({ user, logout, goResults }) {
           <div className="rights-grid">
 
             <div className="right-card">
-
-              <div className="right-icon">
-                🗳️
-              </div>
+              <div className="right-icon">🗳️</div>
 
               <h3>
                 Make Your Voice Heard
@@ -649,14 +478,10 @@ function Dashboard({ user, logout, goResults }) {
                 Every vote is an important
                 part of the democratic process.
               </p>
-
             </div>
 
             <div className="right-card">
-
-              <div className="right-icon">
-                ⚖️
-              </div>
+              <div className="right-icon">⚖️</div>
 
               <h3>
                 One Person, One Vote
@@ -666,14 +491,10 @@ function Dashboard({ user, logout, goResults }) {
                 Your vote represents your
                 choice in the election.
               </p>
-
             </div>
 
             <div className="right-card">
-
-              <div className="right-icon">
-                🔐
-              </div>
+              <div className="right-icon">🔐</div>
 
               <h3>
                 Vote Responsibly
@@ -683,25 +504,19 @@ function Dashboard({ user, logout, goResults }) {
                 Choose your candidate carefully
                 and vote responsibly.
               </p>
-
             </div>
 
           </div>
-
         </section>
 
-        {/* =================================================
-            CANDIDATE REGISTRATION
-        ================================================= */}
+        {/* CANDIDATE REGISTRATION */}
 
         {showCandidateForm && (
-
           <section className="candidate-registration">
 
             <div className="registration-header">
 
               <div>
-
                 <p className="section-label">
                   CANDIDATE APPLICATION
                 </p>
@@ -714,7 +529,6 @@ function Dashboard({ user, logout, goResults }) {
                   Submit your election profile
                   for Admin approval.
                 </p>
-
               </div>
 
               <div className="registration-icon">
@@ -729,7 +543,6 @@ function Dashboard({ user, logout, goResults }) {
             >
 
               <div className="form-group">
-
                 <label>
                   Candidate Name
                 </label>
@@ -739,17 +552,13 @@ function Dashboard({ user, logout, goResults }) {
                   placeholder="Enter candidate name"
                   value={candidateName}
                   onChange={(e) =>
-                    setCandidateName(
-                      e.target.value
-                    )
+                    setCandidateName(e.target.value)
                   }
                   required
                 />
-
               </div>
 
               <div className="form-group">
-
                 <label>
                   Party Name
                 </label>
@@ -759,17 +568,13 @@ function Dashboard({ user, logout, goResults }) {
                   placeholder="Enter party name"
                   value={candidateParty}
                   onChange={(e) =>
-                    setCandidateParty(
-                      e.target.value
-                    )
+                    setCandidateParty(e.target.value)
                   }
                   required
                 />
-
               </div>
 
               <div className="form-group">
-
                 <label>
                   Candidate Photo URL
                 </label>
@@ -779,12 +584,9 @@ function Dashboard({ user, logout, goResults }) {
                   placeholder="Optional photo URL"
                   value={candidatePhoto}
                   onChange={(e) =>
-                    setCandidatePhoto(
-                      e.target.value
-                    )
+                    setCandidatePhoto(e.target.value)
                   }
                 />
-
               </div>
 
               <div className="form-buttons">
@@ -792,9 +594,7 @@ function Dashboard({ user, logout, goResults }) {
                 <button
                   type="submit"
                   className="primary-btn"
-                  disabled={
-                    candidateLoading
-                  }
+                  disabled={candidateLoading}
                 >
                   {candidateLoading
                     ? "Submitting..."
@@ -805,10 +605,7 @@ function Dashboard({ user, logout, goResults }) {
                   type="button"
                   className="secondary-btn"
                   onClick={() => {
-                    setShowCandidateForm(
-                      false
-                    );
-
+                    setShowCandidateForm(false);
                     setMessage("");
                   }}
                 >
@@ -816,18 +613,13 @@ function Dashboard({ user, logout, goResults }) {
                 </button>
 
               </div>
-
             </form>
-
           </section>
         )}
 
-        {/* =================================================
-            VOTING CLOSED
-        ================================================= */}
+        {/* VOTING CLOSED */}
 
         {isElectionEnded && (
-
           <section className="closed-election">
 
             <div className="closed-icon">
@@ -835,7 +627,6 @@ function Dashboard({ user, logout, goResults }) {
             </div>
 
             <div>
-
               <h2>
                 Election Has Ended
               </h2>
@@ -844,7 +635,6 @@ function Dashboard({ user, logout, goResults }) {
                 Voting is now closed. You can
                 view the final election results.
               </p>
-
             </div>
 
             <button
@@ -857,16 +647,13 @@ function Dashboard({ user, logout, goResults }) {
           </section>
         )}
 
-        {/* =================================================
-            CANDIDATES
-        ================================================= */}
+        {/* CANDIDATES */}
 
         <section className="candidates-section">
 
           <div className="section-title">
 
             <div>
-
               <p className="section-label">
                 ELECTION
               </p>
@@ -880,18 +667,13 @@ function Dashboard({ user, logout, goResults }) {
                   ? "Voting is closed."
                   : "Review the approved candidates and make your choice."}
               </p>
-
             </div>
 
             <span className="candidate-count">
               {candidates.length} Candidates
             </span>
 
-          </div>
-
-          {/* =================================================
-              LOADING
-          ================================================= */}
+          </div>{/* LOADING */}
 
           {loading ? (
 
@@ -915,168 +697,131 @@ function Dashboard({ user, logout, goResults }) {
 
             <div className="candidate-grid">
 
-              {candidates.map(
-                (candidate, index) => (
+              {candidates.map((candidate, index) => (
 
-                  <div
-                    className="candidate-card"
-                    key={
-                      candidate._id ||
-                      index
-                    }
-                  >
+                <div
+                  className="candidate-card"
+                  key={candidate._id || index}
+                >
 
-                    {/* ================= TOP ================= */}
+                  <div className="candidate-top">
 
-                    <div className="candidate-top">
+                    {candidate.photo ? (
 
-                      {candidate.photo ? (
+                      <img
+                        src={candidate.photo}
+                        alt={candidate.name}
+                        className="candidate-photo"
+                        onError={(e) => {
+                          e.currentTarget.style.display =
+                            "none";
+                        }}
+                      />
 
-                        <img
-                          src={
-                            candidate.photo
-                          }
-                          alt={
-                            candidate.name
-                          }
-                          className="candidate-photo"
+                    ) : (
 
-                          onError={(e) => {
-                            e.currentTarget.style.display =
-                              "none";
-                          }}
-                        />
-
-                      ) : (
-
-                        <div className="candidate-avatar">
-
-                          {getInitial(
-                            candidate.name
-                          )}
-
-                        </div>
-
-                      )}
-
-                      <span className="candidate-number">
-                        #{index + 1}
-                      </span>
-
-                    </div>
-
-                    {/* ================= DETAILS ================= */}
-
-                    <div className="candidate-details">
-
-                      <span className="approved-badge">
-                        ✓ APPROVED
-                      </span>
-
-                      <h3>
-                        {candidate.name ||
-                          "Candidate"}
-                      </h3>
-
-                      <p className="party">
-                        🏛️{" "}
-                        {candidate.party ||
-                          "Independent"}
-                      </p>
-
-                    </div>
-
-                    {/* ================= BOTTOM ================= */}
-
-                    <div className="candidate-bottom">
-
-                      <div className="vote-count">
-
-                        <strong>
-                          {Number(
-                            candidate.votes ||
-                              0
-                          )}
-                        </strong>
-
-                        <span>
-                          Votes
-                        </span>
-
+                      <div className="candidate-avatar">
+                        {getInitial(candidate.name)}
                       </div>
 
-                      <button
-                        className="vote-btn"
+                    )}
 
-                        disabled={
-                          user?.hasVoted ||
-                          isElectionEnded
-                        }
-
-                        onClick={() =>
-                          vote(
-                            candidate._id
-                          )
-                        }
-                      >
-
-                        {isElectionEnded
-                          ? "Election Ended"
-                          : user?.hasVoted
-                          ? "Vote Submitted ✓"
-                          : "Vote Now →"}
-
-                      </button>
-
-                    </div>
+                    <span className="candidate-number">
+                      #{index + 1}
+                    </span>
 
                   </div>
 
-                )
-              )}
+                  <div className="candidate-details">
+
+                    <span className="approved-badge">
+                      ✓ APPROVED
+                    </span>
+
+                    <h3>
+                      {candidate.name || "Candidate"}
+                    </h3>
+
+                    <p className="party">
+                      🏛️{" "}
+                      {candidate.party || "Independent"}
+                    </p>
+
+                  </div>
+
+                  <div className="candidate-bottom">
+
+                    <div className="vote-count">
+
+                      <strong>
+                        {Number(candidate.votes || 0)}
+                      </strong>
+
+                      <span>
+                        Votes
+                      </span>
+
+                    </div>
+
+                    <button
+                      className="vote-btn"
+                      disabled={
+                        user?.hasVoted ||
+                        isElectionEnded
+                      }
+                      onClick={() =>
+                        vote(candidate._id)
+                      }
+                    >
+                      {isElectionEnded
+                        ? "Election Ended"
+                        : user?.hasVoted
+                        ? "Vote Submitted ✓"
+                        : "Vote Now →"}
+                    </button>
+
+                  </div>
+
+                </div>
+
+              ))}
+
+            </div>
+          )}
+
+          {/* NO CANDIDATES */}
+
+          {!loading && candidates.length === 0 && (
+
+            <div className="empty">
+
+              <div className="empty-icon">
+                🏛️
+              </div>
+
+              <h3>
+                No Approved Candidates
+              </h3>
+
+              <p>
+                Candidates will appear here
+                after Admin approval.
+              </p>
+
+              <button
+                className="primary-btn"
+                onClick={fetchCandidates}
+              >
+                🔄 Refresh Candidates
+              </button>
 
             </div>
 
           )}
 
-          {/* =================================================
-              NO CANDIDATES
-          ================================================= */}
-
-          {!loading &&
-            candidates.length === 0 && (
-
-              <div className="empty">
-
-                <div className="empty-icon">
-                  🏛️
-                </div>
-
-                <h3>
-                  No Approved Candidates
-                </h3>
-
-                <p>
-                  Candidates will appear here
-                  after Admin approval.
-                </p>
-
-                <button
-                  className="primary-btn"
-                  onClick={fetchCandidates}
-                >
-                  🔄 Refresh Candidates
-                </button>
-
-              </div>
-
-            )}
-
         </section>
 
-        {/* =================================================
-            DEMOCRACY MESSAGE
-        ================================================= */}
+        {/* DEMOCRACY MESSAGE */}
 
         <section className="democracy-banner">
 
@@ -1109,9 +854,7 @@ function Dashboard({ user, logout, goResults }) {
 
       </main>
 
-      {/* =================================================
-          FOOTER
-      ================================================= */}
+      {/* FOOTER */}
 
       <footer className="vote-footer">
 
@@ -1130,8 +873,7 @@ function Dashboard({ user, logout, goResults }) {
         </p>
 
         <small>
-          © 2026 VoteHub •
-          Democracy • Equality •
+          © 2026 VoteHub • Democracy • Equality •
           Participation
         </small>
 
