@@ -9437,4 +9437,909 @@ body {
   .vote-btn {
     width: 100%;
   }
+}/* =========================================================
+   VOTEHUB - FINAL GUI POLISH
+   Dashboard + Results
+   UI ONLY - NO LOGIC CHANGES
+========================================================= */
+
+.dashboard {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 0% 0%, rgba(255, 153, 51, 0.08), transparent 28%),
+    radial-gradient(circle at 100% 15%, rgba(19, 136, 8, 0.07), transparent 28%),
+    #f4f7fb;
+  color: #172033;
+}
+
+/* =========================================================
+   NAVBAR
+========================================================= */
+
+.dashboard .navbar {
+  min-height: 72px;
+  padding: 0 clamp(20px, 5vw, 70px);
+  background: #111a2a;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 4px 20px rgba(15,23,42,.08);
+}
+
+.dashboard .nav-brand {
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -.5px;
+  color: #fff;
+}
+
+.dashboard .nav-brand span {
+  color: #21a90d;
+}
+
+.dashboard .nav-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dashboard .nav-right > button {
+  border: 0;
+  background: transparent;
+  color: #e6edf8;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: .2s ease;
+}
+
+.dashboard .nav-right > button:hover {
+  background: rgba(255,255,255,.09);
+  transform: translateY(-1px);
+}
+
+.dashboard .logout-btn {
+  color: #ff8585 !important;
+}
+
+.dashboard .user-info {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 5px 10px;
+  margin-left: 4px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dashboard .avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg,#405bd5,#6478ee);
+  color: #fff;
+  font-weight: 800;
+}
+
+/* =========================================================
+   MAIN WIDTH
+========================================================= */
+
+.dashboard .dashboard-content {
+  width: min(1240px, calc(100% - 48px));
+  margin: 0 auto;
+  padding: 34px 0 55px;
+}
+
+/* =========================================================
+   HOME HERO
+========================================================= */
+
+.dashboard .constitution-hero {
+  min-height: 245px;
+  padding: 38px 42px;
+  margin-bottom: 22px;
+
+  display: grid;
+  grid-template-columns: 82px 1fr 190px;
+  align-items: center;
+  gap: 28px;
+
+  position: relative;
+  overflow: hidden;
+
+  border-radius: 22px;
+  background:
+    linear-gradient(135deg,#17233f 0%,#25385f 60%,#30496e 100%);
+  box-shadow: 0 18px 45px rgba(23,35,63,.16);
+}
+
+.dashboard .constitution-hero::before {
+  content: "";
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  right: -100px;
+  top: -120px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.055);
+}
+
+.dashboard .hero-emblem {
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+  border-radius: 20px;
+  background: rgba(255,255,255,.10);
+  border: 1px solid rgba(255,255,255,.16);
+  font-size: 34px;
+  position: relative;
+  z-index: 1;
+}
+
+.dashboard .hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.dashboard .hero-label {
+  margin: 0 0 8px;
+  color: #ffbd72;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.8px;
+}
+
+.dashboard .hero-content h1 {
+  margin: 0;
+  color: #fff;
+  font-size: clamp(31px,4vw,48px);
+  line-height: 1.03;
+  letter-spacing: -1.5px;
+}
+
+.dashboard .hero-content > p:last-child {
+  max-width: 600px;
+  margin: 15px 0 0;
+  color: #cbd5e1;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.dashboard .hero-status {
+  position: relative;
+  z-index: 1;
+  padding: 18px;
+  border-radius: 16px;
+  background: rgba(0,0,0,.20);
+  border: 1px solid rgba(255,255,255,.16);
+  text-align: center;
+}
+
+.dashboard .hero-status .status-icon {
+  margin-bottom: 7px;
+  font-size: 27px;
+}
+
+.dashboard .hero-status span {
+  display: block;
+  color: #aebbd0;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.dashboard .hero-status strong {
+  display: block;
+  margin-top: 5px;
+  color: #72e48c;
+  font-size: 13px;
+}
+
+/* =========================================================
+   MESSAGE
+========================================================= */
+
+.dashboard .message {
+  margin: 18px 0;
+  padding: 13px 17px;
+  border-radius: 12px;
+  background: #fff8eb;
+  border: 1px solid #f5d79f;
+  color: #80551c;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 5px 18px rgba(80,60,20,.05);
+}
+
+.dashboard .message button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 21px;
+}
+
+/* =========================================================
+   PREAMBLE
+========================================================= */
+
+.dashboard .preamble-card {
+  padding: 28px 32px;
+  margin-bottom: 28px;
+  display: flex;
+  gap: 22px;
+  align-items: flex-start;
+
+  background: #fff;
+  border: 1px solid #e5e9f0;
+  border-radius: 18px;
+  box-shadow: 0 8px 28px rgba(20,35,65,.06);
+}
+
+.dashboard .preamble-icon {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 14px;
+  background: #fff4e6;
+  font-size: 22px;
+}
+
+.dashboard .preamble-content {
+  flex: 1;
+}
+
+.dashboard .section-label {
+  margin: 0 0 6px;
+  color: #d97706;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.4px;
+}
+
+.dashboard .preamble-content h2 {
+  margin: 0 0 10px;
+  color: #172033;
+  font-size: 22px;
+}
+
+.dashboard .preamble-text {
+  max-width: 900px;
+  margin: 0;
+  color: #687386;
+  line-height: 1.7;
+  font-size: 13px;
+}
+
+.dashboard .preamble-values {
+  margin-top: 18px;
+  display: grid;
+  grid-template-columns: repeat(4,1fr);
+  gap: 10px;
+}
+
+.dashboard .preamble-values span {
+  padding: 9px 10px;
+  text-align: center;
+  border-radius: 9px;
+  background: #f7f9fc;
+  border: 1px solid #edf0f5;
+  color: #536074;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* =========================================================
+   RIGHTS
+========================================================= */
+
+.dashboard .rights-section {
+  margin: 30px 0;
+}
+
+.dashboard .rights-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard .rights-heading h2 {
+  margin: 3px 0 0;
+  font-size: 25px;
+}
+
+.dashboard .constitution-mark {
+  font-size: 22px;
+}
+
+.dashboard .rights-grid {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 16px;
+}
+
+.dashboard .right-card {
+  padding: 22px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #e6eaf0;
+  box-shadow: 0 7px 24px rgba(20,35,65,.055);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.dashboard .right-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(20,35,65,.10);
+}
+
+.dashboard .right-icon {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 13px;
+  border-radius: 12px;
+  background: #f1f5ff;
+  font-size: 20px;
+}
+
+.dashboard .right-card h3 {
+  margin: 0 0 7px;
+  font-size: 15px;
+  color: #1d2738;
+}
+
+.dashboard .right-card p {
+  margin: 0;
+  color: #7b8494;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+/* =========================================================
+   SECTION HEADINGS
+========================================================= */
+
+.dashboard .section-title {
+  margin: 34px 0 16px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.dashboard .section-title h2 {
+  margin: 3px 0;
+  color: #172033;
+  font-size: 26px;
+  letter-spacing: -.4px;
+}
+
+.dashboard .section-title p {
+  margin: 5px 0 0;
+  color: #7b8494;
+  font-size: 12px;
+}
+
+.dashboard .candidate-count {
+  padding: 7px 12px;
+  border-radius: 20px;
+  background: #eef2f8;
+  color: #687386;
+  font-size: 11px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* =========================================================
+   CANDIDATE CARDS
+========================================================= */
+
+.dashboard .candidate-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 18px;
+}
+
+.dashboard .candidate-card {
+  min-height: 235px;
+  padding: 24px;
+  position: relative;
+
+  background: #fff;
+  border: 1px solid #e4e8ef;
+  border-radius: 18px;
+
+  box-shadow: 0 8px 26px rgba(20,35,65,.065);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+
+.dashboard .candidate-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 15px 35px rgba(20,35,65,.11);
+}
+
+.dashboard .candidate-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dashboard .candidate-avatar,
+.dashboard .candidate-photo {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+}
+
+.dashboard .candidate-avatar {
+  display: grid;
+  place-items: center;
+  background: #edf2f8;
+  border: 1px solid #dce3ec;
+  color: #334155;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.dashboard .candidate-photo {
+  object-fit: cover;
+  border: 2px solid #e7ebf1;
+}
+
+.dashboard .candidate-number {
+  color: #a0a9b8;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.dashboard .candidate-details {
+  margin-top: 20px;
+}
+
+.dashboard .approved-badge {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #edf9ef;
+  color: #16803a;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .5px;
+}
+
+.dashboard .candidate-details h3,
+.dashboard .candidate-card > h3 {
+  margin: 10px 0 4px;
+  color: #172033;
+  font-size: 19px;
+}
+
+.dashboard .party {
+  margin: 0;
+  color: #7a8495;
+  font-size: 12px;
+}
+
+.dashboard .candidate-bottom,
+.dashboard .card-bottom {
+  margin-top: 22px;
+  padding-top: 15px;
+  border-top: 1px solid #edf0f4;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+}
+
+.dashboard .vote-count {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.dashboard .vote-count strong {
+  color: #263b63;
+  font-size: 20px;
+}
+
+.dashboard .vote-count span {
+  color: #8993a3;
+  font-size: 11px;
+}
+
+.dashboard .vote-btn {
+  border: 0;
+  padding: 11px 16px;
+  border-radius: 10px;
+  background: #263b63;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  transition: .2s ease;
+}
+
+.dashboard .vote-btn:hover:not(:disabled) {
+  background: #172b50;
+  transform: translateY(-1px);
+}
+
+.dashboard .vote-btn:disabled {
+  opacity: .48;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   RESULTS PAGE
+========================================================= */
+
+.dashboard .welcome {
+  min-height: 190px;
+  margin-bottom: 22px;
+  padding: 34px 38px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 30px;
+
+  border-radius: 22px;
+  color: #fff;
+
+  background:
+    linear-gradient(120deg,#ff7a18 0%,#e73c7e 45%,#7038d7 100%);
+
+  box-shadow: 0 18px 42px rgba(80,45,130,.16);
+}
+
+.dashboard .welcome h1 {
+  margin: 6px 0;
+  font-size: clamp(30px,4vw,43px);
+  line-height: 1.05;
+  color: #fff;
+}
+
+.dashboard .welcome p {
+  color: rgba(255,255,255,.85);
+}
+
+.dashboard .welcome .small-title {
+  color: rgba(255,255,255,.75);
+}
+
+.dashboard .vote-status {
+  min-width: 190px;
+  padding: 17px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-radius: 15px;
+  background: rgba(0,0,0,.18);
+  border: 1px solid rgba(255,255,255,.18);
+}
+
+.dashboard .vote-status > span {
+  font-size: 27px;
+}
+
+.dashboard .vote-status small {
+  display: block;
+  color: rgba(255,255,255,.7);
+  font-size: 10px;
+}
+
+.dashboard .vote-status strong {
+  display: block;
+  margin-top: 4px;
+  color: #fff;
+  font-size: 13px;
+}
+
+/* =========================================================
+   LEADING CANDIDATE
+========================================================= */
+
+.dashboard .candidate-registration[style] {
+  padding: 28px !important;
+  border: 1px solid #e5e9f0 !important;
+  border-radius: 18px !important;
+  background:
+    linear-gradient(135deg,#fff,#f8fbff) !important;
+  box-shadow: 0 10px 30px rgba(20,35,65,.07) !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard .candidate-registration[style]::after {
+  content: "🏆";
+  position: absolute;
+  right: 28px;
+  top: 25px;
+  font-size: 42px;
+  opacity: .13;
+}
+
+.dashboard .candidate-registration[style] h2 {
+  margin: 7px 0 3px;
+  color: #172033;
+  font-size: 28px;
+}
+
+.dashboard .candidate-registration[style] strong {
+  display: inline-block;
+  margin-top: 15px;
+  color: #263b63;
+  font-size: 21px;
+}
+
+/* =========================================================
+   RESULT STATS
+========================================================= */
+
+.dashboard .stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.dashboard .stat-card {
+  min-height: 110px;
+  padding: 22px;
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  border-radius: 17px;
+  background: #fff;
+  border: 1px solid #e5e9f0;
+  box-shadow: 0 8px 25px rgba(20,35,65,.06);
+}
+
+.dashboard .stat-icon {
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border-radius: 15px;
+  font-size: 24px;
+}
+
+.dashboard .stat-card.blue .stat-icon {
+  background: #eaf2ff;
+}
+
+.dashboard .stat-card.green .stat-icon {
+  background: #eaf9f0;
+}
+
+.dashboard .stat-card span {
+  display: block;
+  color: #7b8494;
+  font-size: 12px;
+}
+
+.dashboard .stat-card strong {
+  display: block;
+  margin-top: 4px;
+  color: #263b63;
+  font-size: 28px;
+}
+
+/* =========================================================
+   RESULT ACTION BUTTONS
+========================================================= */
+
+.dashboard .download-result-btn,
+.dashboard .refresh-btn {
+  border: 0;
+  padding: 11px 15px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  transition: .2s ease;
+}
+
+.dashboard .download-result-btn {
+  background: #263b63;
+  color: #fff;
+}
+
+.dashboard .refresh-btn {
+  background: #edf1f7;
+  color: #34435c;
+}
+
+.dashboard .download-result-btn:hover,
+.dashboard .refresh-btn:hover {
+  transform: translateY(-2px);
+}
+
+.dashboard .download-result-btn:disabled,
+.dashboard .refresh-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* =========================================================
+   EMPTY / LOADING
+========================================================= */
+
+.dashboard .empty {
+  padding: 55px 25px;
+  text-align: center;
+  background: #fff;
+  border: 1px solid #e5e9f0;
+  border-radius: 18px;
+  box-shadow: 0 8px 25px rgba(20,35,65,.05);
+}
+
+.dashboard .empty > div {
+  font-size: 42px;
+}
+
+.dashboard .empty h3 {
+  margin: 12px 0 5px;
+  color: #263246;
+}
+
+.dashboard .empty p {
+  margin: 0 0 18px;
+  color: #8490a1;
+  font-size: 13px;
+}
+
+/* =========================================================
+   FOOTER
+========================================================= */
+
+.dashboard .vote-footer,
+.dashboard > footer {
+  padding: 28px 20px;
+  text-align: center;
+  background: #fff;
+  border-top: 1px solid #e5e9f0;
+  color: #7b8494;
+}
+
+.dashboard .vote-footer strong {
+  display: block;
+  color: #303846;
+}
+
+.dashboard .vote-footer p {
+  margin: 6px 0;
+  font-size: 11px;
+}
+
+.dashboard .vote-footer small {
+  font-size: 10px;
+  color: #a0a7b2;
+}
+
+/* =========================================================
+   RESPONSIVE
+========================================================= */
+
+@media (max-width: 900px) {
+
+  .dashboard .dashboard-content {
+    width: min(94%, 700px);
+  }
+
+  .dashboard .constitution-hero {
+    grid-template-columns: 65px 1fr;
+  }
+
+  .dashboard .hero-status {
+    grid-column: 1 / -1;
+  }
+
+  .dashboard .rights-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard .preamble-values {
+    grid-template-columns: repeat(2,1fr);
+  }
+}
+
+@media (max-width: 650px) {
+
+  .dashboard .navbar {
+    min-height: 64px;
+    padding: 0 16px;
+  }
+
+  .dashboard .nav-right {
+    gap: 2px;
+  }
+
+  .dashboard .nav-right > button {
+    padding: 8px;
+    font-size: 0;
+  }
+
+  .dashboard .nav-right > button:first-child::first-letter,
+  .dashboard .nav-right > button:nth-child(2)::first-letter {
+    font-size: 17px;
+  }
+
+  .dashboard .user-info span {
+    display: none;
+  }
+
+  .dashboard .dashboard-content {
+    width: calc(100% - 24px);
+    padding: 18px 0 35px;
+  }
+
+  .dashboard .constitution-hero,
+  .dashboard .welcome {
+    display: block;
+    padding: 25px 22px;
+    text-align: center;
+  }
+
+  .dashboard .hero-emblem {
+    margin: 0 auto 16px;
+  }
+
+  .dashboard .hero-content h1,
+  .dashboard .welcome h1 {
+    font-size: 29px;
+  }
+
+  .dashboard .hero-status,
+  .dashboard .vote-status {
+    width: 100%;
+    margin-top: 20px;
+    justify-content: center;
+  }
+
+  .dashboard .preamble-card {
+    padding: 22px;
+  }
+
+  .dashboard .preamble-values,
+  .dashboard .candidate-grid,
+  .dashboard .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard .section-title {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .dashboard .candidate-card {
+    min-height: auto;
+  }
+
+  .dashboard .candidate-bottom,
+  .dashboard .card-bottom {
+    align-items: stretch;
+  }
+
+  .dashboard .vote-btn {
+    flex: 1;
+  }
+
+  .dashboard .download-result-btn,
+  .dashboard .refresh-btn {
+    flex: 1;
+  }
 }
