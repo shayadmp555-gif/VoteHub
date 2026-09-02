@@ -9,13 +9,10 @@ const API =
 function Admin({ user, logout }) {
   const [candidates, setCandidates] = useState([]);
   const [users, setUsers] = useState([]);
-
   const [search, setSearch] = useState("");
   const [activePage, setActivePage] = useState("dashboard");
-
   const [loading, setLoading] = useState(true);
   const [usersLoading, setUsersLoading] = useState(false);
-
   const [message, setMessage] = useState("");
 
   // ================= TOKEN =================
@@ -576,7 +573,9 @@ function Admin({ user, logout }) {
     window.location.href = "/";
   };
 
-  // ================= USER ROW =================
+  // =====================================================
+  // USER ROW
+  // =====================================================
 
   const renderUserRow = (
     item,
@@ -594,7 +593,9 @@ function Admin({ user, logout }) {
           </div>
 
           <div>
-            <strong>{item.name}</strong>
+            <strong>
+              {item.name}
+            </strong>
 
             <small>
               ID: {item._id?.slice(-6)}
@@ -602,7 +603,27 @@ function Admin({ user, logout }) {
           </div>
         </div>
 
-        <span>{item.email}</span>
+        <span>
+          {item.email}
+        </span>
+
+        {/* ================= VOTED STATUS ================= */}
+
+        {!candidateAccount && (
+          <span
+            className={
+              item.hasVoted === true
+                ? "status approved"
+                : "status pending"
+            }
+          >
+            {item.hasVoted === true
+              ? "✓ Voted"
+              : "• Not Voted"}
+          </span>
+        )}
+
+        {/* ================= ACCOUNT STATUS ================= */}
 
         {item.isApproved === true ? (
           <span className="status approved">
@@ -617,6 +638,8 @@ function Admin({ user, logout }) {
             • Pending
           </span>
         )}
+
+        {/* ================= ACTIONS ================= */}
 
         {showActions && (
           <div className="action-buttons">
@@ -681,6 +704,7 @@ function Admin({ user, logout }) {
             >
               🗑️ Delete
             </button>
+
           </div>
         )}
       </div>
@@ -704,7 +728,9 @@ function Admin({ user, logout }) {
       ? "Approved Candidates"
       : "Candidate Management";
 
-  // ================= RETURN =================
+  // =====================================================
+  // RETURN
+  // =====================================================
 
   return (
     <div className="admin-layout">
@@ -754,6 +780,7 @@ function Admin({ user, logout }) {
             }
             onClick={async () => {
               await fetchUsers();
+
               setActivePage(
                 "candidateRequests"
               );
@@ -777,6 +804,7 @@ function Admin({ user, logout }) {
             }
             onClick={async () => {
               await fetchUsers();
+
               setActivePage(
                 "pendingUsers"
               );
@@ -799,6 +827,7 @@ function Admin({ user, logout }) {
             }
             onClick={async () => {
               await fetchUsers();
+
               setActivePage("users");
             }}
           >
@@ -838,6 +867,7 @@ function Admin({ user, logout }) {
             }
             onClick={async () => {
               await fetchCandidates();
+
               setActivePage("candidates");
             }}
           >
@@ -930,7 +960,6 @@ function Admin({ user, logout }) {
 
         {message && (
           <div className="admin-message">
-
             {message}
 
             <button
@@ -940,11 +969,12 @@ function Admin({ user, logout }) {
             >
               ×
             </button>
-
           </div>
         )}
 
-        {/* ================= DASHBOARD ================= */}
+        {/* =================================================
+            DASHBOARD
+        ================================================= */}
 
         {activePage === "dashboard" && (
           <section>
@@ -952,7 +982,6 @@ function Admin({ user, logout }) {
             <div className="welcome-banner">
 
               <div>
-
                 <span className="welcome-label">
                   ELECTION CONTROL CENTER
                 </span>
@@ -966,7 +995,6 @@ function Admin({ user, logout }) {
                   Manage voters, candidates
                   and election activity.
                 </p>
-
               </div>
 
               <div className="banner-icon">
@@ -1060,8 +1088,7 @@ function Admin({ user, logout }) {
                 </strong>
 
                 <span>
-                  {pendingCandidateUsers.length}
-                  {" "}
+                  {pendingCandidateUsers.length}{" "}
                   pending
                 </span>
               </button>
@@ -1081,8 +1108,7 @@ function Admin({ user, logout }) {
                 </strong>
 
                 <span>
-                  {pendingUsers.length}
-                  {" "}
+                  {pendingUsers.length}{" "}
                   pending
                 </span>
               </button>
@@ -1092,7 +1118,9 @@ function Admin({ user, logout }) {
           </section>
         )}
 
-        {/* ================= VOTER REQUESTS ================= */}
+        {/* =================================================
+            VOTER REQUESTS
+        ================================================= */}
 
         {activePage === "pendingUsers" && (
           <section>
@@ -1128,7 +1156,8 @@ function Admin({ user, logout }) {
               <div className="modern-table-head">
                 <span>User</span>
                 <span>Email</span>
-                <span>Status</span>
+                <span>Vote Status</span>
+                <span>Account Status</span>
                 <span>Action</span>
               </div>
 
@@ -1138,13 +1167,11 @@ function Admin({ user, logout }) {
                 </div>
               ) : pendingUsers.length === 0 ? (
                 <div className="empty-state">
-
                   <div>🎉</div>
 
                   <h3>
                     No Pending Voters
                   </h3>
-
                 </div>
               ) : (
                 pendingUsers.map((item) =>
@@ -1157,7 +1184,9 @@ function Admin({ user, logout }) {
           </section>
         )}
 
-        {/* ================= CANDIDATE REQUESTS ================= */}
+        {/* =================================================
+            CANDIDATE REQUESTS
+        ================================================= */}
 
         {activePage === "candidateRequests" && (
           <section>
@@ -1203,7 +1232,6 @@ function Admin({ user, logout }) {
                 </div>
               ) : pendingCandidateUsers.length === 0 ? (
                 <div className="empty-state">
-
                   <div>🎉</div>
 
                   <h3>
@@ -1214,7 +1242,6 @@ function Admin({ user, logout }) {
                     New candidate registrations
                     will appear here.
                   </p>
-
                 </div>
               ) : (
                 pendingCandidateUsers.map(
@@ -1232,7 +1259,9 @@ function Admin({ user, logout }) {
           </section>
         )}
 
-        {/* ================= ALL VOTERS ================= */}
+        {/* =================================================
+            ALL VOTERS
+        ================================================= */}
 
         {activePage === "users" && (
           <section>
@@ -1247,6 +1276,11 @@ function Admin({ user, logout }) {
                 <h2>
                   Registered Voters
                 </h2>
+
+                <p>
+                  See which voters have voted
+                  and which have not voted.
+                </p>
               </div>
 
               <button
@@ -1263,7 +1297,8 @@ function Admin({ user, logout }) {
               <div className="modern-table-head">
                 <span>User</span>
                 <span>Email</span>
-                <span>Status</span>
+                <span>Vote Status</span>
+                <span>Account Status</span>
                 <span>Action</span>
               </div>
 
@@ -1277,6 +1312,7 @@ function Admin({ user, logout }) {
                 ).length === 0 ? (
                 <div className="empty-state">
                   <div>👤</div>
+
                   <h3>
                     No Registered Voters
                   </h3>
@@ -1297,7 +1333,9 @@ function Admin({ user, logout }) {
           </section>
         )}
 
-        {/* ================= APPROVED CANDIDATES ================= */}
+        {/* =================================================
+            APPROVED CANDIDATES
+        ================================================= */}
 
         {activePage === "approvedCandidates" && (
           <section>
@@ -1339,13 +1377,11 @@ function Admin({ user, logout }) {
 
               {approvedCandidateUsers.length === 0 ? (
                 <div className="empty-state">
-
                   <div>🗳️</div>
 
                   <h3>
                     No Approved Candidates
                   </h3>
-
                 </div>
               ) : (
                 approvedCandidateUsers.map(
@@ -1363,7 +1399,9 @@ function Admin({ user, logout }) {
           </section>
         )}
 
-        {/* ================= ELECTION CANDIDATES ================= */}
+        {/* =================================================
+            ELECTION CANDIDATES
+        ================================================= */}
 
         {activePage === "candidates" && (
           <section>
@@ -1397,7 +1435,6 @@ function Admin({ user, logout }) {
             <div className="candidate-toolbar">
 
               <div className="search-box">
-
                 🔍
 
                 <input
@@ -1410,7 +1447,6 @@ function Admin({ user, logout }) {
                     )
                   }
                 />
-
               </div>
 
             </div>
