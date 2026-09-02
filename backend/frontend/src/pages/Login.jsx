@@ -92,7 +92,7 @@ function Login({ onLogin, goRegister }) {
         </p>
 
         <h1 className="constitution-title">
-          We, the People of India
+        🗳️ आपलं मतदान, आपला अधिकार
         </h1>
 
         <p className="constitution-text">
