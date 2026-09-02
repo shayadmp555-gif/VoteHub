@@ -10825,3 +10825,89 @@ body {
   }
 
 }
+/* ===== RESULTS PAGE FIX ===== */
+
+.dashboard .candidate-card {
+  background: #151923 !important;
+  color: #ffffff !important;
+}
+
+.dashboard .candidate-card > * {
+  color: inherit;
+}
+
+/* White candidate image/area fix */
+.dashboard .candidate-card .candidate-top {
+  background: transparent !important;
+}
+
+.dashboard .candidate-card .candidate-avatar {
+  background: linear-gradient(135deg, #243b64, #172642) !important;
+  color: #ffffff !important;
+}
+
+/* Candidate information */
+.dashboard .candidate-card h3,
+.dashboard .candidate-card h4,
+.dashboard .candidate-card strong {
+  color: #ffffff !important;
+}
+
+.dashboard .candidate-card .party {
+  color: #8f9bad !important;
+}
+
+/* Result percentage */
+.dashboard .candidate-card .card-bottom {
+  background: transparent !important;
+  color: #ffffff !important;
+}
+
+/* Leading candidate */
+.dashboard .candidate-registration {
+  background: linear-gradient(135deg, #17243f, #1c2942) !important;
+  color: #ffffff !important;
+
+  border: 1px solid rgba(255,255,255,.10) !important;
+  box-shadow: 0 15px 35px rgba(0,0,0,.22) !important;
+}
+
+.dashboard .candidate-registration h2,
+.dashboard .candidate-registration h3,
+.dashboard .candidate-registration p,
+.dashboard .candidate-registration strong,
+.dashboard .candidate-registration span {
+  color: #ffffff !important;
+}
+
+/* Leading candidate small label */
+.dashboard .candidate-registration .small-title {
+  color: #ffad66 !important;
+}
+
+/* Stats */
+.dashboard .stat-card {
+  background: #151923 !important;
+  color: #ffffff !important;
+}
+
+.dashboard .stat-card span {
+  color: #8996aa !important;
+}
+
+.dashboard .stat-card strong {
+  color: #ffffff !important;
+}
+
+/* Keep results container readable */
+.dashboard .dashboard-content {
+  width: min(1120px, 92%);
+}
+
+/* Remove accidental white backgrounds */
+.dashboard .candidate-card,
+.dashboard .candidate-registration,
+.dashboard .stat-card,
+.dashboard .section-title {
+  box-sizing: border-box;
+}
